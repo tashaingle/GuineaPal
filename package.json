@@ -1,0 +1,47 @@
+{
+  "name": "GuineaPal-Fresh",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@expo/vector-icons": "^14.1.0",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "browserify-zlib": "^0.2.0",
+    "eslint": "^8.57.1",
+    "expo": "^53.0.9",
+    "expo-crypto": "^14.1.4",
+    "expo-splash-screen": "~0.30.8",
+    "jest-expo": "^53.0.5",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.2",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.10.0",
+    "stream-browserify": "^3.0.0",
+    "typescript": "~5.8.3"
+  },
+  "devDependencies": {
+    "@types/react": "~19.0.10",
+    "babel-preset-expo": "~13.0.0",
+    "metro": "0.82.0",
+    "metro-config": "0.82.0",
+    "metro-core": "0.82.0",
+    "metro-react-native-babel-preset": "0.73.9",
+    "metro-resolver": "0.82.0",
+    "react-native-svg": "~15.11.2"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "clean": "rm -rf node_modules && npm install"
+  },
+  "resolutions": {
+    "glob": "^9.0.0"
+  }
+}

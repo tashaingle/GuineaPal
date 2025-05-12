@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "GuineaPal",
+    "slug": "guineapal",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF9F0"
+    },
+    "platforms": ["ios", "android", "web"],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "com.tasha.guineapal",
+      "buildNumber": "1.0.0",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.tasha.guineapal",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png", 
+        "backgroundColor": "#FFF9F0"
+      }
+    },
+    "web": {
+      "favicon": "./assets/icon.png" 
+    }
+  }
+}
