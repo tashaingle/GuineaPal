@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wood texture pattern -->
+    <defs>
+        <pattern id="woodPattern" x="0" y="0" width="20" height="10" patternUnits="userSpaceOnUse">
+            <path d="M0,5 L20,5" stroke="#8B4513" stroke-width="0.5" opacity="0.3"/>
+            <path d="M0,2 L20,2" stroke="#8B4513" stroke-width="0.3" opacity="0.2"/>
+            <path d="M0,8 L20,8" stroke="#8B4513" stroke-width="0.3" opacity="0.2"/>
+        </pattern>
+    </defs>
+    
+    <!-- House shadow -->
+    <ellipse cx="100" cy="140" rx="80" ry="10" fill="#8B5E3C" opacity="0.2"/>
+    
+    <!-- Back wall -->
+    <path d="M40,60 L160,60 L160,120 L40,120 Z" fill="#A0522D"/>
+    <path d="M40,60 L160,60 L160,120 L40,120 Z" fill="url(#woodPattern)"/>
+    
+    <!-- Roof -->
+    <path d="M30,60 L100,20 L170,60 Z" fill="#8B4513"/>
+    <path d="M30,60 L100,20 L170,60 Z" fill="url(#woodPattern)" transform="rotate(-30,100,40)"/>
+    
+    <!-- Left wall -->
+    <path d="M40,60 L40,120 L30,110 L30,60 Z" fill="#6B4423"/>
+    <path d="M40,60 L40,120 L30,110 L30,60 Z" fill="url(#woodPattern)" opacity="0.7"/>
+    
+    <!-- Right wall -->
+    <path d="M160,60 L160,120 L170,110 L170,60 Z" fill="#6B4423"/>
+    <path d="M160,60 L160,120 L170,110 L170,60 Z" fill="url(#woodPattern)" opacity="0.7"/>
+    
+    <!-- Floor -->
+    <path d="M40,120 L160,120 L170,110 L30,110 Z" fill="#8B4513"/>
+    <path d="M40,120 L160,120 L170,110 L30,110 Z" fill="url(#woodPattern)"/>
+    
+    <!-- Entrance -->
+    <path d="M80,80 L120,80 L120,120 L80,120 Z" fill="#4A2F1C"/>
+    
+    <!-- Entrance arch -->
+    <path d="M80,80 Q100,75 120,80" stroke="#6B4423" stroke-width="5" fill="none"/>
+    
+    <!-- Decorative elements -->
+    <!-- Roof trim -->
+    <path d="M25,62 L100,20 L175,62" stroke="#6B4423" stroke-width="4" fill="none"/>
+    
+    <!-- Corner posts -->
+    <path d="M35,60 L35,115" stroke="#6B4423" stroke-width="6"/>
+    <path d="M165,60 L165,115" stroke="#6B4423" stroke-width="6"/>
+    
+    <!-- Wood grain details -->
+    <g stroke="#8B4513" stroke-width="0.5" opacity="0.5">
+        <!-- Left panel -->
+        <path d="M45,70 L75,70"/>
+        <path d="M45,90 L75,90"/>
+        <path d="M45,110 L75,110"/>
+        
+        <!-- Right panel -->
+        <path d="M125,70 L155,70"/>
+        <path d="M125,90 L155,90"/>
+        <path d="M125,110 L155,110"/>
+    </g>
+    
+    <!-- Highlights -->
+    <path d="M40,60 L160,60" stroke="#D2691E" stroke-width="2" opacity="0.3"/>
+    <path d="M100,20 L170,60" stroke="#D2691E" stroke-width="2" opacity="0.3"/>
+    <path d="M30,60 L100,20" stroke="#D2691E" stroke-width="2" opacity="0.3"/>
+</svg> 

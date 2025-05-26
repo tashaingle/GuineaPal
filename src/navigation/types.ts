@@ -8,133 +8,317 @@ export const Gender = {
 } as const;
 export type Gender = typeof Gender[keyof typeof Gender];
 
-export type HealthTabType = 'weight' | 'medication' | 'appointments' | 'notes';
-export type ChecklistCategory = 'feeding' | 'grooming' | 'health' | 'social';
-export type ChecklistFrequency = 'daily' | 'weekly' | 'monthly';
-export type HealthMetricType = 'weight' | 'temperature' | 'foodIntake' | 'activity';
-export type PetEventType = 'feeding' | 'medication' | 'vet' | 'grooming' | 'playtime' | 'training';
+export type HealthTabType = 'weight' | 'medication' | 'appointments' | 'notes' | 'waste';
 
-export interface GuineaPig {
-  id: string;
-  name: string;
-  breed: string;
-  birthDate?: string | null;
-  gender?: Gender | null;
-  color?: string | null;
-  image: string | null; 
-  weight?: number | null;
-  lastVetVisit?: string | null;
-  notes?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-  isFavorite?: boolean;
-}
+export type Mood = 'happy' | 'content' | 'neutral' | 'anxious' | 'sad';
 
-export type BreedOption = {
+export type MoodEntry = {
   id: string;
-  name: string;
-  description?: string | null;
-  image?: string | null;
-  isCustom?: boolean;
-  popularity?: number;
+  date: string;
+  mood: Mood;
+  photo?: string;
+  notes?: string;
+  activities: string[];
 };
 
-export type ChecklistItem = {
+export type WasteType = 'poop' | 'pee';
+
+export type PoopConsistency = 'normal' | 'soft' | 'wet' | 'dry' | 'diarrhea';
+export type PoopColor = 'brown' | 'dark_brown' | 'green' | 'white' | 'red' | 'black';
+export type PeeColor = 'clear' | 'cloudy' | 'dark_yellow' | 'orange' | 'red' | 'brown';
+
+export interface WasteLog {
   id: string;
-  title: string;
-  category: ChecklistCategory;
-  frequency: ChecklistFrequency;
-  lastCompleted?: string | null;
-  isComplete: boolean;
-  reminderEnabled?: boolean;
+  petId: string;
+  date: string;
+  type: WasteType;
+  frequency: number; // Number of droppings/urinations in this log
+  location: string;
+  notes?: string;
+  // Poop specific
+  poopConsistency?: PoopConsistency;
+  poopColor?: PoopColor;
+  // Pee specific
+  peeColor?: PeeColor;
+  peeVolume?: 'normal' | 'excessive' | 'reduced';
+}
+
+export type GuineaPig = {
+  id: string;
+  name: string;
+  breed?: string;
+  birthDate?: string;
+  weight?: number;
+  image?: string;
+  gender: 'male' | 'female' | 'unknown';
+  createdAt: string;
+  updatedAt: string;
+  // Family relationships
+  motherId?: string;
+  fatherId?: string;
+  siblings?: string[];
+  children?: string[];
+  mate?: string;
+  // Pregnancy tracking
+  isPregnant?: boolean;
+  pregnancyStartDate?: string;
+  expectedDueDate?: string;
+  pregnancyNotes?: string;
+  // Health tracking
+  healthRecords?: HealthRecord[];
+  medications?: Medication[];
+  vetAppointments?: VetAppointment[];
+  weightHistory?: WeightRecord[];
+  moodHistory?: MoodEntry[];
+  wasteLogs?: WasteLog[];
+  // Care schedule
+  careSchedule?: CareSchedule;
+  // Diet
+  dietPreferences?: DietPreferences;
+  feedingSchedule?: FeedingSchedule;
 };
 
 export type HealthRecord = {
   id: string;
-  petId: string;
-  type: HealthMetricType;
-  value: number;
   date: string;
-  notes?: string | null;
-  recordedBy?: string | null;
+  type: 'symptom' | 'checkup' | 'treatment' | 'note';
+  title: string;
+  description: string;
+  severity?: 'low' | 'medium' | 'high';
+  resolved?: boolean;
+  createdAt: string;
 };
 
-export type PetEvent = {
+export type Medication = {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+  reminderEnabled: boolean;
+  active: boolean;
+};
+
+export type VetAppointment = {
+  id: string;
+  date: string;
+  time: string;
+  purpose: string;
+  vetName?: string;
+  clinic?: string;
+  notes?: string;
+  completed: boolean;
+  reminderEnabled: boolean;
+};
+
+export type WeightRecord = {
+  id: string;
+  date: string;
+  weight: number; // in grams
+  notes?: string;
+};
+
+export type CareSchedule = {
+  cageCleaningDays: number[];
+  lastCageCleaning?: string;
+  nailTrimmingInterval: number;
+  lastNailTrimming?: string;
+  floorTimeSchedule: {
+    days: number[];
+    duration: number;
+  };
+  outdoorsTimeSchedule: {
+    days: number[];
+    duration: number;
+  };
+  vitaminCSchedule: {
+    frequency: 'daily' | 'weekly';
+    time: string;
+    amount: string;
+  };
+};
+
+export type DietPreferences = {
+  favoriteVegetables: string[];
+  favoriteFruits: string[];
+  allergies: string[];
+  restrictions: string[];
+  hayPreference: string;
+};
+
+export type FeedingSchedule = {
+  hay: {
+    frequency: 'daily' | 'twice_daily';
+    times: string[];
+    amount: string;
+  };
+  pellets: {
+    frequency: 'daily' | 'twice_daily';
+    times: string[];
+    amount: string;
+  };
+  vegetables: {
+    frequency: 'daily' | 'twice_daily';
+    times: string[];
+    items: Array<{
+      name: string;
+      amount: string;
+    }>;
+  };
+  fruits: {
+    frequency: 'weekly';
+    days: number[];
+    amount: string;
+  };
+};
+
+export interface GuineaGramPost {
   id: string;
   petId: string;
-  type: PetEventType;
+  imageUri: string;
+  caption: string;
   date: string;
-  duration?: number | null;
-  notes?: string | null;
-  completed: boolean;
-  attachments?: string[] | null;
-  location?: string | null;
+  likes: number;
+  comments?: {
+    id: string;
+    text: string;
+    date: string;
+  }[];
+}
+
+export interface ForumPost {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  imageUri?: string;
+  date: string;
+  likes: number;
+  comments: ForumComment[];
+  tags: string[];
+}
+
+export type ForumComment = {
+  id: string;
+  userId: string;
+  content: string;
+  date: string;
+  likes: number;
 };
 
+export interface BondingSession {
+  id: string;
+  date: string;
+  duration: number; // in minutes
+  pets: string[]; // array of pet IDs
+  location: string;
+  notes?: string;
+  success: 'good' | 'neutral' | 'challenging';
+  behaviors: string[]; // observed behaviors
+}
+
 export type RootStackParamList = {
+  // Auth Screens
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+
+  // Main App Screens
+  Welcome: undefined;
   Home: undefined;
+  PetList: undefined;
+  PetDetails: { petId: string };
+  AddPet: undefined;
+  EditPet: { petId: string };
+  Checklist: { petId: string | undefined };
+  GuineaGram: { refresh?: number };
+  NewsOfTheWheek: undefined;
+  CreateForumPost: undefined;
+  BondingTracker: {
+    petId?: string;
+  };
+  CareGuide: undefined;
+  CareGuideSection: {
+    title: string;
+    content: {
+      title: string;
+      text: string[];
+      tips?: string[];
+      warnings?: string[];
+      images?: string[];
+    }[];
+  };
+  SafeFoods: undefined;
+  NewOwnerChecklist: undefined;
+  SymptomChecker: undefined;
   Profile: {
     pet: GuineaPig;
     mode?: 'view' | 'edit';
-    onSave?: (updatedPet: GuineaPig) => void;
-    onDelete?: (petId: string) => void;
+    onSave?: () => void;
+    onDelete?: (id: string) => void;
+  };
+  AddEditPet: {
+    mode?: 'add' | 'edit';
+    pet?: GuineaPig;
+    onComplete?: () => void;
   };
   BreedSelection: {
     petId: string;
-    currentBreed?: string | null;
+    currentBreed?: string;
     onSelectBreed: (breed: string) => void;
     allowCustomBreeds?: boolean;
   };
-  Checklist: {
-    petId?: string | null;
-    date?: string | null;
+  // Health & Care Screens
+  CareSchedule: {
+    pet: GuineaPig;
   };
-  HealthTracker: {
+  DietManager: {
+    pet: GuineaPig;
+  };
+  MedicalRecords: {
+    pet: GuineaPig;
+  };
+  WeightTracker: {
+    pet: GuineaPig;
+  };
+  MoodTracker: {
+    pet: GuineaPig;
+  };
+  FeedingSchedule: {
+    pet: GuineaPig;
+  };
+  CareReminders: {
+    pet: GuineaPig;
+  };
+  PostDetail: {
+    post: GuineaGramPost;
+    onLike?: (postId: string) => void;
+  };
+  Achievements: undefined;
+  ForumPost: {
+    post: ForumPost;
+    onLike?: (postId: string) => void;
+  };
+  BondingTimer: {
+    pets: string[];
+  };
+  BondingGuide: undefined;
+  WasteLog: {
     petId: string;
-    initialTab?: HealthTabType;
   };
-  AddEditPet: {
-    pet?: PartialBy<GuineaPig, 'id'>;
-    mode: 'add' | 'edit';
-    onComplete?: (pet: GuineaPig) => void;
+  AddWasteLog: {
+    petId: string;
+    onSave?: () => void;
+  };
+  FamilyTree: {
+    pet: GuineaPig;
+    onUpdate?: () => void;
   };
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> = {
   navigation: NativeStackNavigationProp<RootStackParamList, T>;
   route: RouteProp<RootStackParamList, T>;
-};
-
-export type ApiResponse<T> = {
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-    details?: Record<string, unknown>;
-  };
-  success: boolean;
-  timestamp?: string;
-};
-
-export type FormErrors<T> = {
-  [K in keyof T]?: string;
-} & {
-  general?: string;
-};
-
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = {
-  [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
-}[Keys];
-
-
-export type ProfileScreenProps = ScreenProps<'Profile'>;
-export type BreedSelectionScreenProps = ScreenProps<'BreedSelection'>;
-export type ChecklistScreenProps = ScreenProps<'Checklist'>;
-export type HealthTrackerScreenProps = ScreenProps<'HealthTracker'>;
-export type AddEditPetScreenProps = ScreenProps<'AddEditPet'>;
-
-
-export type WithTestID<T = {}> = T & {
-  testID?: string;
 };

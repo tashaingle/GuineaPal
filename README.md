@@ -1,50 +1,125 @@
-# Welcome to your Expo app 👋
+# GuineaPal 🐹
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+GuineaPal is your all-in-one companion app for guinea pig care management. Whether you're a new owner or an experienced caregiver, GuineaPal helps you provide the best care for your furry friends.
 
-## Get started
+## Features
 
-1. Install dependencies
+### 🏠 Complete Care Management
+- **Pet Profiles**: Create detailed profiles for each of your guinea pigs
+- **Health Tracking**: Monitor weight, mood, and medical records
+- **Care Schedules**: Set reminders for feeding, cleaning, and health checks
+- **Family Tree**: Track family relationships and breeding information
+- **Waste Log**: Monitor waste patterns for health insights
 
+### 📸 GuineaGram
+Share your guinea pig moments with the community through our built-in social feature.
+
+### 📚 Comprehensive Care Guide
+- Housing requirements and setup tips
+- Diet and nutrition guidelines
+- Health and grooming advice
+- Exercise and play recommendations
+- Behavior understanding
+- Social needs and bonding guidance
+- Safe foods guide
+- New owner checklist
+
+### 🏆 Achievement System
+Stay motivated with achievements for:
+- Care consistency
+- Social engagement
+- Feeding schedules
+- Health management
+
+## Getting Started
+
+### Prerequisites
+- Node.js (Latest LTS version)
+- npm or yarn
+- Expo CLI
+- iOS/Android development environment setup for mobile deployment
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone [repository-url]
+   cd GuineaPal-Fresh
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the development server:
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+4. Run on your preferred platform:
+   ```bash
+   # For iOS
+   npm run ios
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   # For Android
+   npm run android
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+   # For web
+   npm run web
+   ```
 
-## Get a fresh project
+## Environment Setup
 
-When you're ready, run:
+1. Create a `basic.env` file in the root directory with your configuration:
+   ```
+   # Add your environment variables here
+   ```
 
-```bash
-npm run reset-project
-```
+2. For Firebase setup (optional but recommended for data sync):
+   - Create a Firebase project
+   - Add your Firebase configuration
+   - Enable Authentication and Firestore
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Features in Detail
 
-## Learn more
+### Pet Management
+- Create and manage multiple pet profiles
+- Track weight history
+- Monitor mood and behavior
+- Log medical records and vet visits
+- Set care schedule reminders
+- Manage diet and feeding schedules
 
-To learn more about developing your project with Expo, look at the following resources:
+### Health Monitoring
+- Weight tracking with charts
+- Health record management
+- Medication reminders
+- Vet appointment scheduling
+- Waste pattern monitoring
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Social Features
+- Share photos on GuineaGram
+- Connect with other guinea pig owners
+- Share care tips and experiences
 
-## Join the community
+## Contributing
 
-Join our community of developers creating universal apps.
+We welcome contributions! Please read our contributing guidelines before submitting pull requests.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, please:
+- Check our documentation
+- Join our community forum
+- Contact support at [support-email]
+
+## Acknowledgments
+
+- Thanks to all contributors
+- Special thanks to the guinea pig care community
+- Icon and image credits [Add credits here]

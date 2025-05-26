@@ -1,92 +1,61 @@
 module.exports = function(api) {
   api.cache(true);
-
-  const isProduction = api.env('production');
-  const isDevelopment = api.env('development');
-
   return {
     presets: [
-      [
-        'babel-preset-expo',
-        {
-          jsxRuntime: 'automatic',
-          web: { disableImportExportTransform: true },
-          
-          disableImportExportTransform: false,
-          unstable_transformProfile: 'default'
-        }
-      ]
+      ['babel-preset-expo', {
+        jsxRuntime: 'automatic'
+      }]
     ],
     plugins: [
-      
-      [
-        'module-resolver',
-        {
-          root: ['./'],
-          extensions: [
-            '.js',
-            '.jsx',
-            '.ts',
-            '.tsx',
-            '.android.js',
-            '.android.tsx',
-            '.ios.js',
-            '.ios.tsx'
-          ],
-          alias: {
-            '^@/(.+)': './src/\\1',
-            '@assets': './assets',
-            '@components': './src/components',
-            '@screens': './src/screens',
-            '@navigation': './src/navigation',
-            '@utils': './src/utils',
-            '@types': './src/types',
-            '@constants': './src/constants'
-          }
+      ['module-resolver', {
+        root: ['./'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+        alias: {
+          '@': './src',
+          '@assets': './assets',
+          '@components': './src/components',
+          '@screens': './src/screens',
+          '@navigation': './src/navigation',
+          '@utils': './src/utils',
+          '@types': './src/types',
+          '@constants': './src/constants',
         }
-      ],
-
-      
+      }],
       'react-native-reanimated/plugin',
-
-      
-      [
-        '@babel/plugin-transform-runtime',
-        {
-          helpers: true,
-          regenerator: false,
-          useESModules: false, 
-          absoluteRuntime: false
-        }
-      ],
-
-      
-      ['@babel/plugin-proposal-decorators', { legacy: true }],
-      
-      
-      ['@babel/plugin-proposal-class-properties', { loose: true }],
-
-      
-      ...(isDevelopment ? [
-        ['@babel/plugin-transform-react-jsx-source', { module: true }],
-        '@babel/plugin-transform-react-jsx-self'
-      ] : []),
-
-      
-      ...(isProduction ? [
-        ['transform-remove-console', { exclude: ['error', 'warn'] }],
-        'transform-react-remove-prop-types'
-      ] : [])
-    ].filter(Boolean), 
-
- 
+      ['@babel/plugin-transform-react-jsx', {
+        runtime: 'automatic'
+      }],
+      '@babel/plugin-transform-export-namespace-from',
+      '@babel/plugin-transform-optional-chaining',
+      '@babel/plugin-transform-nullish-coalescing-operator',
+      ['module:react-native-dotenv', {
+        moduleName: '@env',
+        path: '.env',
+        blacklist: null,
+        whitelist: null,
+        safe: true,
+        allowUndefined: true
+      }],
+      ['transform-inline-environment-variables', {
+        include: ['EXPO_OS', 'NODE_ENV', 'EXPO_PLATFORM']
+      }]
+    ],
     env: {
-      production: {
-        compact: true
-      },
       development: {
-        sourceMaps: 'inline',
-        retainLines: true
+        compact: false,
+        plugins: [
+          ['transform-inline-environment-variables', {
+            include: ['EXPO_OS', 'NODE_ENV', 'EXPO_PLATFORM']
+          }]
+        ]
+      },
+      production: {
+        compact: true,
+        plugins: [
+          ['transform-inline-environment-variables', {
+            include: ['EXPO_OS', 'NODE_ENV', 'EXPO_PLATFORM']
+          }]
+        ]
       }
     }
   };

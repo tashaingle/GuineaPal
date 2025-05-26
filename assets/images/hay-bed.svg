@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hay bed base -->
+    <defs>
+        <pattern id="hayPattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M2,5 L8,5" stroke="#D4B483" stroke-width="1" transform="rotate(30,5,5)"/>
+            <path d="M2,5 L8,5" stroke="#C19A6B" stroke-width="1" transform="rotate(-30,5,5)"/>
+        </pattern>
+    </defs>
+    
+    <!-- Base shadow -->
+    <ellipse cx="100" cy="90" rx="80" ry="10" fill="#8B5E3C" opacity="0.2"/>
+    
+    <!-- Main hay pile -->
+    <path d="M20,80 Q60,60 100,60 Q140,60 180,80 Q160,90 100,90 Q40,90 20,80 Z" 
+          fill="#E6C88C"/>
+    
+    <!-- Hay texture -->
+    <path d="M20,80 Q60,60 100,60 Q140,60 180,80 Q160,90 100,90 Q40,90 20,80 Z" 
+          fill="url(#hayPattern)"/>
+    
+    <!-- Individual hay strands -->
+    <g stroke="#D4B483" stroke-width="1" fill="none">
+        <!-- Left side -->
+        <path d="M30,75 L40,65" transform="rotate(-10,35,70)"/>
+        <path d="M45,70 L55,60" transform="rotate(-5,50,65)"/>
+        <path d="M60,65 L70,55" transform="rotate(0,65,60)"/>
+        
+        <!-- Middle -->
+        <path d="M85,60 L95,50" transform="rotate(5,90,55)"/>
+        <path d="M100,60 L110,50" transform="rotate(-5,105,55)"/>
+        <path d="M115,60 L125,50" transform="rotate(10,120,55)"/>
+        
+        <!-- Right side -->
+        <path d="M140,65 L150,55" transform="rotate(0,145,60)"/>
+        <path d="M155,70 L165,60" transform="rotate(5,160,65)"/>
+        <path d="M170,75 L180,65" transform="rotate(10,175,70)"/>
+    </g>
+    
+    <!-- Darker hay strands -->
+    <g stroke="#C19A6B" stroke-width="1" fill="none">
+        <!-- Left side -->
+        <path d="M25,78 L35,68" transform="rotate(-15,30,73)"/>
+        <path d="M40,73 L50,63" transform="rotate(-10,45,68)"/>
+        <path d="M55,68 L65,58" transform="rotate(-5,60,63)"/>
+        
+        <!-- Middle -->
+        <path d="M80,63 L90,53" transform="rotate(0,85,58)"/>
+        <path d="M95,63 L105,53" transform="rotate(-10,100,58)"/>
+        <path d="M110,63 L120,53" transform="rotate(5,115,58)"/>
+        
+        <!-- Right side -->
+        <path d="M135,68 L145,58" transform="rotate(-5,140,63)"/>
+        <path d="M150,73 L160,63" transform="rotate(0,155,68)"/>
+        <path d="M165,78 L175,68" transform="rotate(5,170,73)"/>
+    </g>
+    
+    <!-- Highlights -->
+    <path d="M40,75 Q100,65 160,75" stroke="#F0D5A0" stroke-width="2" opacity="0.5" fill="none"/>
+    <path d="M50,80 Q100,70 150,80" stroke="#F0D5A0" stroke-width="2" opacity="0.5" fill="none"/>
+    
+    <!-- Small hay pieces -->
+    <g fill="#D4B483">
+        <circle cx="45" cy="72" r="1"/>
+        <circle cx="75" cy="65" r="1"/>
+        <circle cx="105" cy="62" r="1"/>
+        <circle cx="135" cy="65" r="1"/>
+        <circle cx="165" cy="72" r="1"/>
+    </g>
+</svg> 

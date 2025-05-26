@@ -1,216 +1,218 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  TextInput 
-} from 'react-native';
+import { RootStackParamList } from '@/navigation/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@navigation/types';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BreedSelection'>;
 
-const BREEDS = [
-  'Abyssinian',
+const GUINEA_PIG_BREEDS = [
+  'Unknown',
   'American',
+  'Abyssinian',
+  'Alpaca',
+  'Baldwin',
   'Coronet',
+  'Merino',
   'Peruvian',
+  'Rex',
+  'Satin',
   'Silkie',
+  'Skinny',
   'Teddy',
   'Texel',
-  'White Crested',
-  'Skinny Pig',
-  'Baldwin',
-  'Lunkarya',
-  'Alpaca',
-  'Merino',
-  'Sheba Mini Yak'
+  'White Crested'
 ];
 
 const BreedSelectionScreen = ({ navigation, route }: Props) => {
-  const { petId, currentBreed, onSelectBreed } = route.params;
-  const [selectedBreed, setSelectedBreed] = useState(currentBreed || '');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredBreeds, setFilteredBreeds] = useState(GUINEA_PIG_BREEDS);
+  const insets = useSafeAreaInsets();
+
+  const filterBreeds = useCallback((query: string) => {
+    const normalizedQuery = query.toLowerCase();
+    return GUINEA_PIG_BREEDS.filter(breed =>
+      breed.toLowerCase().includes(normalizedQuery)
+    );
+  }, []);
 
   useEffect(() => {
-    if (currentBreed) {
-      setSelectedBreed(currentBreed);
-    }
-  }, [currentBreed]);
+    setFilteredBreeds(filterBreeds(searchQuery));
+  }, [searchQuery, filterBreeds]);
 
-  const handleConfirm = useCallback(() => {
-    if (onSelectBreed && selectedBreed) {
-      onSelectBreed(selectedBreed);
+  const handleBreedSelect = (breed: string) => {
+    if (route.params?.onSelectBreed) {
+      route.params.onSelectBreed(breed);
     }
     navigation.goBack();
-  }, [selectedBreed, onSelectBreed, navigation]);
-
-  const filteredBreeds = BREEDS.filter(breed =>
-    breed.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderBreedItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={[
-        styles.breedItem,
-        selectedBreed === item && styles.selectedBreedItem
-      ]}
-      onPress={() => setSelectedBreed(item)}
-      accessibilityLabel={`Select ${item} breed`}
-      accessibilityRole="button"
-    >
-      <Text style={[
-        styles.breedText,
-        selectedBreed === item && styles.selectedBreedText
-      ]}>
-        {item}
-      </Text>
-      {selectedBreed === item && (
-        <MaterialIcons name="check" size={24} color="#FFF8E1" />
-      )}
-    </TouchableOpacity>
-  );
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <View style={styles.header}>
-          <Text style={styles.title}>Select Breed</Text>
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()}
-            style={styles.closeButton}
-            accessibilityLabel="Close breed selection"
-          >
-            <MaterialIcons name="close" size={24} color="#5D4037" />
-          </TouchableOpacity>
-        </View>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color="#5D4037" />
+        </TouchableOpacity>
+        <Text style={styles.header}>Select Breed</Text>
+      </View>
 
-        <TextInput
-          placeholder="Search breeds..."
-          placeholderTextColor="#999"
-          style={styles.searchInput}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          clearButtonMode="while-editing"
-        />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.content}
+      >
+        <View style={styles.searchContainer}>
+          <MaterialIcons name="search" size={24} color="#757575" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search breeds..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#9E9E9E"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => setSearchQuery('')}
+            >
+              <MaterialIcons name="clear" size={20} color="#757575" />
+            </TouchableOpacity>
+          )}
+        </View>
 
         <FlatList
           data={filteredBreeds}
-          renderItem={renderBreedItem}
-          keyExtractor={(item) => item}
-          contentContainerStyle={styles.listContent}
-          keyboardShouldPersistTaps="handled"
+          keyExtractor={item => item}
+          contentContainerStyle={{ paddingBottom: insets.bottom }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.breedItem}
+              onPress={() => handleBreedSelect(item)}
+            >
+              <Text style={styles.breedText}>{item}</Text>
+              <MaterialIcons name="chevron-right" size={24} color="#5D4037" />
+            </TouchableOpacity>
+          )}
           ListEmptyComponent={
-            <Text style={styles.noResultsText}>No breeds found</Text>
+            <View style={styles.emptyState}>
+              <MaterialIcons name="search-off" size={48} color="#BDBDBD" />
+              <Text style={styles.emptyText}>No breeds found</Text>
+              <Text style={styles.emptySubtext}>Try a different search term</Text>
+            </View>
           }
         />
-
-        <TouchableOpacity
-          style={[
-            styles.confirmButton,
-            !selectedBreed && styles.disabledButton
-          ]}
-          onPress={handleConfirm}
-          disabled={!selectedBreed}
-          accessibilityLabel={selectedBreed ? `Confirm ${selectedBreed}` : 'Select a breed first'}
-        >
-          <Text style={styles.confirmText}>
-            {selectedBreed ? `Confirm ${selectedBreed}` : 'Select Breed'}
-          </Text>
-        </TouchableOpacity>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFF8E1',
-  },
   container: {
     flex: 1,
+    backgroundColor: '#FFF8E1'
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
+    paddingTop: 8,
+    backgroundColor: '#FFF8E1',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0'
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
+    top: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#5D4037',
+    textAlign: 'center'
   },
-  closeButton: {
-    padding: 8,
+  content: {
+    flex: 1,
+    padding: 16
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4
+  },
+  searchIcon: {
+    marginRight: 8
   },
   searchInput: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    flex: 1,
+    height: 48,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    color: '#212121'
   },
-  listContent: {
-    paddingBottom: 20,
+  clearButton: {
+    padding: 8
   },
   breedItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    marginVertical: 4,
     backgroundColor: 'white',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  selectedBreedItem: {
-    backgroundColor: '#5D4037',
-    borderColor: '#4E342E',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4
   },
   breedText: {
+    flex: 1,
     fontSize: 16,
-    color: '#212121',
+    color: '#212121'
   },
-  selectedBreedText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  noResultsText: {
-    textAlign: 'center',
-    color: '#757575',
-    marginTop: 20,
-    fontSize: 16,
-  },
-  confirmButton: {
-    padding: 16,
-    backgroundColor: '#5D4037',
-    borderRadius: 8,
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    padding: 20
   },
-  disabledButton: {
-    backgroundColor: '#BDBDBD',
-  },
-  confirmText: {
-    color: 'white',
+  emptyText: {
     fontSize: 18,
-    fontWeight: '600',
+    color: '#5D4037',
+    marginTop: 16,
+    marginBottom: 8
   },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#795548',
+    textAlign: 'center'
+  }
 });
 
 export default BreedSelectionScreen;

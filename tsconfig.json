@@ -3,36 +3,85 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-native",
+    "jsxImportSource": "react",
     "module": "esnext",
-    "moduleResolution": "bundler", 
+    "moduleResolution": "bundler",
+    "customConditions": ["react-native"],
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@screens/*": ["src/screens/*"],
-      "@navigation/*": ["src/navigation/*"],
-      "@assets/*": ["assets/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
-      "@constants/*": ["src/constants/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@screens/*": [
+        "src/screens/*"
+      ],
+      "@navigation/*": [
+        "src/navigation/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ]
     },
-    "types": ["jest", "@testing-library/jest-native"],
+    "types": [
+      "jest",
+      "node",
+      "react",
+      "react-native"
+    ],
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "customConditions": ["react-native"] 
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "target": "esnext",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true
   },
   "include": [
+    "App.tsx",
+    "app.json",
+    "babel.config.js",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "App.tsx",
-    "babel.config.js",
+    "src/**/*.js",
+    "src/**/*.jsx",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "__mocks__/**/*"
+    "global.d.ts",
+    "declarations.d.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/__tests__/e2e/**"
+    "**/__tests__/e2e/**",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/__mocks__/**"
   ]
 }

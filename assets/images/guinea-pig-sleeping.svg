@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fur base texture -->
+    <defs>
+        <pattern id="furPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+            <path d="M1,1 L2,2" stroke="#8B4513" stroke-width="0.5" opacity="0.3"/>
+        </pattern>
+    </defs>
+    
+    <!-- Body shadow -->
+    <ellipse cx="100" cy="150" rx="60" ry="20" fill="#8B5E3C" opacity="0.2"/>
+    
+    <!-- Main body (curled up sleeping) -->
+    <path d="M60,150 Q80,130 100,130 Q120,130 140,150 Q145,120 140,100 Q120,80 100,80 Q80,80 60,100 Q55,120 60,150 Z" 
+          fill="#B87A56" transform="rotate(-45,100,115)"/>
+    <path d="M60,150 Q80,130 100,130 Q120,130 140,150 Q145,120 140,100 Q120,80 100,80 Q80,80 60,100 Q55,120 60,150 Z" 
+          fill="url(#furPattern)" transform="rotate(-45,100,115)"/>
+    
+    <!-- Fur tufts -->
+    <g opacity="0.7" transform="rotate(-45,100,115)">
+        <path d="M70,110 Q75,105 80,110" stroke="#8B4513" stroke-width="1" fill="none"/>
+        <path d="M90,105 Q95,100 100,105" stroke="#8B4513" stroke-width="1" fill="none"/>
+        <path d="M110,110 Q115,105 120,110" stroke="#8B4513" stroke-width="1" fill="none"/>
+    </g>
+    
+    <!-- Body highlights -->
+    <path d="M70,120 Q100,140 130,120" 
+          fill="none" stroke="#D4A176" stroke-width="12" opacity="0.3" transform="rotate(-45,100,115)"/>
+    
+    <!-- Curled up legs -->
+    <g transform="rotate(-45,100,115)">
+        <!-- Front paws (tucked in) -->
+        <path d="M75,140 Q80,135 85,140" stroke="#8B4513" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <ellipse cx="85" cy="140" rx="6" ry="4" fill="#B87A56"/>
+        
+        <path d="M115,140 Q120,135 125,140" stroke="#8B4513" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <ellipse cx="125" cy="140" rx="6" ry="4" fill="#B87A56"/>
+        
+        <!-- Back paws (tucked under) -->
+        <path d="M70,145 Q75,140 80,145" stroke="#8B4513" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="80" cy="145" rx="7" ry="5" fill="#B87A56"/>
+        
+        <path d="M120,145 Q125,140 130,145" stroke="#8B4513" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <ellipse cx="130" cy="145" rx="7" ry="5" fill="#B87A56"/>
+    </g>
+    
+    <!-- Head (sleeping) -->
+    <g transform="rotate(-45,100,115)">
+        <!-- Base head shape -->
+        <path d="M120,90 Q140,85 145,100 Q147,110 145,115 Q140,125 120,120 Q115,115 115,100 Q115,90 120,90" 
+              fill="#B87A56"/>
+        <path d="M120,90 Q140,85 145,100 Q147,110 145,115 Q140,125 120,120 Q115,115 115,100 Q115,90 120,90" 
+              fill="url(#furPattern)"/>
+        
+        <!-- Head highlight -->
+        <path d="M125,100 Q135,105 140,100" 
+              fill="none" stroke="#D4A176" stroke-width="8" opacity="0.3"/>
+        
+        <!-- Ears (relaxed) -->
+        <path d="M125,85 Q120,80 115,78 Q113,77 115,75 Q118,74 120,78 Z" fill="#8B4513"/>
+        <path d="M140,90 Q138,85 136,82 Q134,80 136,79 Q139,78 141,82 Z" fill="#8B4513"/>
+        
+        <!-- Inner ears -->
+        <path d="M118,79 Q117,77 116,76 Q115,75 116,74 Q117,74 118,76" fill="#FFA07A" opacity="0.7"/>
+        <path d="M138,83 Q137,81 136,80 Q135,79 136,78 Q137,78 138,80" fill="#FFA07A" opacity="0.7"/>
+        
+        <!-- Sleeping eyes (closed) -->
+        <path d="M130,105 Q133,103 136,105" stroke="#8B4513" stroke-width="2" fill="none"/>
+        <path d="M140,108 Q143,106 146,108" stroke="#8B4513" stroke-width="2" fill="none"/>
+        
+        <!-- Nose -->
+        <path d="M142,110 Q144,109 146,110 Q145,111 144,111 Q143,111 142,110" 
+              fill="#FF9EBD"/>
+        
+        <!-- Peaceful smile -->
+        <path d="M140,113 Q143,114 146,113" stroke="#8B4513" stroke-width="1.5" fill="none"/>
+    </g>
+    
+    <!-- Sleeping Z's -->
+    <g transform="translate(60,-40)">
+        <path d="M140,80 L145,80 L140,85 L145,85" stroke="#8B4513" stroke-width="1.5" fill="none"/>
+        <path d="M150,70 L155,70 L150,75 L155,75" stroke="#8B4513" stroke-width="2" fill="none"/>
+        <path d="M160,60 L165,60 L160,65 L165,65" stroke="#8B4513" stroke-width="2.5" fill="none"/>
+    </g>
+</svg> 
