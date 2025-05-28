@@ -4,18 +4,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
-    ActivityIndicatorProps,
     Alert,
     Dimensions,
     FlatList,
     Image,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     RefreshControl,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -45,6 +48,8 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPost, setSelectedPost] = useState<GuineaGramPost | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCaption, setEditingCaption] = useState('');
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
 
@@ -53,6 +58,18 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
       loadPosts();
     }
   }, [isFocused]);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please allow access to your photo library to save photos.'
+        );
+      }
+    })();
+  }, []);
 
   const loadPosts = async () => {
     try {
@@ -76,6 +93,62 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
     setRefreshing(false);
   };
 
+  const handleNewPhoto = async (uri: string) => {
+    try {
+      // First, save the photo to the device's gallery
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      
+      // Create the GuineaPal album if it doesn't exist
+      const albums = await MediaLibrary.getAlbumsAsync();
+      let guineaPalAlbum = albums.find(album => album.title === 'GuineaPal');
+      
+      if (!guineaPalAlbum) {
+        guineaPalAlbum = await MediaLibrary.createAlbumAsync('GuineaPal', asset, false);
+      } else {
+        await MediaLibrary.addAssetsToAlbumAsync([asset], guineaPalAlbum.id, false);
+      }
+
+      Alert.prompt(
+        'Add Caption',
+        'Write a description for your photo',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {}
+          },
+          {
+            text: 'Save',
+            onPress: async (caption = '') => {
+              const newPost: GuineaGramPost = {
+                id: Date.now().toString(),
+                image: uri,
+                caption: caption.trim(),
+                date: new Date().toLocaleDateString(),
+                likes: 0
+              };
+
+              try {
+                const savedPosts = await AsyncStorage.getItem('guineagram_posts');
+                const posts = savedPosts ? JSON.parse(savedPosts) : [];
+                const updatedPosts = [newPost, ...posts];
+                await AsyncStorage.setItem('guineagram_posts', JSON.stringify(updatedPosts));
+                await loadPosts();
+              } catch (err) {
+                console.error('Failed to save post:', err);
+                Alert.alert('Error', 'Failed to save post. Please try again.');
+              }
+            }
+          }
+        ],
+        'plain-text'
+      );
+    } catch (error) {
+      console.error('Failed to save photo to gallery:', error);
+      Alert.alert('Error', 'Failed to save photo to gallery. Please check your permissions and try again.');
+    }
+  };
+
   const navigateToCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     
@@ -95,24 +168,7 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0 && result.assets[0]?.uri) {
-      const newPost: GuineaGramPost = {
-        id: Date.now().toString(),
-        image: result.assets[0].uri,
-        caption: '',
-        date: new Date().toLocaleDateString(),
-        likes: 0
-      };
-
-      try {
-        const savedPosts = await AsyncStorage.getItem('guineagram_posts');
-        const posts = savedPosts ? JSON.parse(savedPosts) : [];
-        const updatedPosts = [newPost, ...posts];
-        await AsyncStorage.setItem('guineagram_posts', JSON.stringify(updatedPosts));
-        await loadPosts();
-      } catch (err) {
-        console.error('Failed to save post:', err);
-        Alert.alert('Error', 'Failed to save post. Please try again.');
-      }
+      handleNewPhoto(result.assets[0].uri);
     }
   };
 
@@ -135,24 +191,22 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0 && result.assets[0]?.uri) {
-      const newPost: GuineaGramPost = {
-        id: Date.now().toString(),
-        image: result.assets[0].uri,
-        caption: '',
-        date: new Date().toLocaleDateString(),
-        likes: 0
-      };
+      handleNewPhoto(result.assets[0].uri);
+    }
+  };
 
-      try {
-        const savedPosts = await AsyncStorage.getItem('guineagram_posts');
-        const posts = savedPosts ? JSON.parse(savedPosts) : [];
-        const updatedPosts = [newPost, ...posts];
-        await AsyncStorage.setItem('guineagram_posts', JSON.stringify(updatedPosts));
-        await loadPosts();
-      } catch (err) {
-        console.error('Failed to save post:', err);
-        Alert.alert('Error', 'Failed to save post. Please try again.');
-      }
+  const updateCaption = async (postId: string, newCaption: string) => {
+    try {
+      const updatedPosts = posts.map(post =>
+        post.id === postId ? { ...post, caption: newCaption.trim() } : post
+      );
+      setPosts(updatedPosts);
+      setSelectedPost({ ...selectedPost!, caption: newCaption.trim() });
+      await AsyncStorage.setItem('guineagram_posts', JSON.stringify(updatedPosts));
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to update caption:', err);
+      Alert.alert('Error', 'Failed to update caption. Please try again.');
     }
   };
 
@@ -220,7 +274,10 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
         animationType="fade"
         onRequestClose={() => setSelectedPost(null)}
       >
-        <View style={styles.modalContainer}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalContainer}
+        >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalDate}>{selectedPost.date}</Text>
@@ -231,31 +288,63 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
                 <MaterialIcons name="delete" size={24} color="#D32F2F" />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => setSelectedPost(null)}
+                onPress={() => {
+                  if (isEditing) {
+                    updateCaption(selectedPost.id, editingCaption);
+                  } else {
+                    setEditingCaption(selectedPost.caption);
+                    setIsEditing(true);
+                  }
+                }}
+                style={styles.editButton}
+              >
+                <MaterialIcons 
+                  name={isEditing ? "check" : "edit"} 
+                  size={24} 
+                  color="#5D4037" 
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if (isEditing) {
+                    setIsEditing(false);
+                    setEditingCaption('');
+                  } else {
+                    setSelectedPost(null);
+                  }
+                }}
                 style={styles.closeButton}
               >
-                <MaterialIcons name="close" size={24} color="#5D4037" />
+                <MaterialIcons 
+                  name={isEditing ? "close" : "close"} 
+                  size={24} 
+                  color="#5D4037" 
+                />
               </TouchableOpacity>
             </View>
             <Image
               source={{ uri: selectedPost.image }}
-              style={styles.modalImage}
+              style={[
+                styles.modalImage,
+                isEditing && { height: '40%' }
+              ]}
               resizeMode="contain"
             />
-            <View style={styles.modalFooter}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => likePost(selectedPost.id)}
-              >
-                <MaterialIcons name="favorite" size={24} color="#5D4037" />
-                <Text style={styles.actionButtonText}>{selectedPost.likes} likes</Text>
-              </TouchableOpacity>
-            </View>
-            {selectedPost.caption ? (
+            {isEditing ? (
+              <TextInput
+                style={styles.captionInput}
+                value={editingCaption}
+                onChangeText={setEditingCaption}
+                placeholder="Write a caption..."
+                multiline
+                maxLength={500}
+                autoFocus
+              />
+            ) : selectedPost.caption ? (
               <Text style={styles.modalCaption}>{selectedPost.caption}</Text>
             ) : null}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     );
   };
@@ -264,7 +353,7 @@ const GuineaGramScreen = ({ route, navigation }: Props) => {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size={'large' as ActivityIndicatorProps['size']} color="#5D4037" />
+          <ActivityIndicator size="large" color="#5D4037" />
         </View>
       </View>
     );
@@ -367,10 +456,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    paddingTop: 8,
-    backgroundColor: '#FFF8E1',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0'
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   backButton: {
     position: 'absolute',
@@ -413,7 +508,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     margin: 16,
     borderRadius: 12,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    maxHeight: '90%'
   },
   modalHeader: {
     flexDirection: 'row',
@@ -434,34 +530,23 @@ const styles = StyleSheet.create({
     padding: 4,
     marginRight: 8
   },
+  editButton: {
+    padding: 4,
+    marginRight: 8
+  },
   modalImage: {
     width: '100%',
-    aspectRatio: 1,
+    height: '75%',
     backgroundColor: '#FAFAFA'
   },
-  modalFooter: {
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
-    flexDirection: 'row',
-    justifyContent: 'space-around'
-  },
   modalCaption: {
-    padding: 16,
-    paddingTop: 0,
+    padding: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     color: '#212121',
     fontSize: 16,
-    lineHeight: 22
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8
-  },
-  actionButtonText: {
-    marginLeft: 8,
-    color: '#5D4037',
-    fontWeight: '500'
+    lineHeight: 22,
+    backgroundColor: 'white',
   },
   emptyState: {
     flex: 1,
@@ -519,6 +604,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600'
+  },
+  captionInput: {
+    padding: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
+    color: '#212121',
+    fontSize: 16,
+    lineHeight: 22,
+    textAlignVertical: 'top',
+    minHeight: 60,
+    maxHeight: '25%',
   }
 });
 

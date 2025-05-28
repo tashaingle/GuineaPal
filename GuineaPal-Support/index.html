@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuineaPal Support</title>
+    <style>
+        :root {
+            --primary-color: #5D4037;
+            --secondary-color: #8D6E63;
+            --background-color: #FFF8E1;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background-color: var(--primary-color);
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin: 30px 0 15px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-method {
+            padding: 20px;
+            background: var(--background-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-color);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>GuineaPal Support</h1>
+            <p>We're here to help you provide the best care for your guinea pigs</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section">
+            <h2>Quick Start Guide</h2>
+            <p>Welcome to GuineaPal! Here's how to get started:</p>
+            <ol style="margin-left: 20px; margin-top: 10px;">
+                <li>Create profiles for your guinea pigs</li>
+                <li>Set up daily care schedules</li>
+                <li>Enable notifications for important reminders</li>
+                <li>Start tracking health and weight</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <div class="faq-question">How do I add a new guinea pig?</div>
+                <div class="faq-answer">
+                    Tap the "+" button on the home screen, then select "Add New Pet." Fill in your guinea pig's details and add a photo if you'd like.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I set up care reminders?</div>
+                <div class="faq-answer">
+                    Navigate to the Care Schedule section, tap "Add New Reminder," and customize the timing and frequency of your reminders.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Can I track multiple guinea pigs?</div>
+                <div class="faq-answer">
+                    Yes! GuineaPal supports multiple pet profiles, each with their own health records, care schedules, and photo galleries.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I use the weight tracker?</div>
+                <div class="faq-answer">
+                    Go to your pet's profile, select "Weight Tracker," and tap the "+" button to add a new weight entry. The app will automatically create a graph of your pet's weight over time.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How does the bonding timer work?</div>
+                <div class="faq-answer">
+                    The bonding timer helps you track socialization sessions between guinea pigs. Select the pets you want to bond, choose a location, and start the timer. You can record behaviors and make notes during the session. This helps you track progress and identify successful bonding strategies.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What is GuineaGram?</div>
+                <div class="faq-answer">
+                    GuineaGram is our social feature where you can share photos of your guinea pigs and connect with other owners. You can post pictures, add captions, and view a timeline of your pet's growth and special moments.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I use the diet manager?</div>
+                <div class="faq-answer">
+                    The diet manager helps you track your guinea pig's food preferences and maintain a balanced diet. You can record favorite foods, set feeding schedules, and get recommendations for a healthy diet. Access it from your pet's profile under "Diet Manager."
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Can I set medication reminders?</div>
+                <div class="faq-answer">
+                    Yes! In the Medical Records section, you can add medications and set reminders. The app will notify you when it's time to give medicine, schedule vet appointments, or perform health checks.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I use the mood tracker?</div>
+                <div class="faq-answer">
+                    The mood tracker helps you monitor your guinea pig's behavior and emotional state. Select your pet's profile, go to "Mood Tracker," and record their daily mood, activity level, and any notable behaviors. This helps identify patterns and ensure their wellbeing.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What's in the Care Guide?</div>
+                <div class="faq-answer">
+                    The Care Guide provides comprehensive information about guinea pig care, including housing requirements, safe foods list, common health issues, and behavior understanding. It's regularly updated with expert advice to help you provide the best care for your pets.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I backup my pet's data?</div>
+                <div class="faq-answer">
+                    GuineaPal automatically saves all your pet's information locally on your device. We recommend regularly checking that your device's backup is enabled to ensure all your pet's important data is safe.
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Contact Support</h2>
+            <p>Need help? We're here for you!</p>
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <h3>Email Support</h3>
+                    <p>Get help within 24 hours</p>
+                    <a href="mailto:support@guineapal.com" class="button">Email Us</a>
+                </div>
+                <div class="contact-method">
+                    <h3>Bug Report</h3>
+                    <p>Found an issue?</p>
+                    <a href="https://github.com/tashaingle/GuineaPal/issues" class="button">Report Bug</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>App Permissions</h2>
+            <p>GuineaPal requires the following permissions to provide the best experience:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>Camera & Photos:</strong> For taking and storing pictures of your pets</li>
+                <li><strong>Notifications:</strong> For care reminders and important alerts</li>
+                <li><strong>Storage:</strong> For saving pet profiles and health records</li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 GuineaPal. All rights reserved. | <a href="privacy-policy.html" style="color: var(--secondary-color);">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html> 

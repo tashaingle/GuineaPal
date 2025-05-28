@@ -7,12 +7,36 @@ const USER_KEY = '@guinea_pal_user';
 // Mock user storage for development
 const MOCK_USERS_KEY = '@guinea_pal_mock_users';
 
+// Default test account
+const DEFAULT_TEST_USER: User = {
+  id: '1',
+  email: 'test@guineapal.com',
+  username: 'testuser',
+  password: 'password123',
+  createdAt: new Date().toISOString()
+};
+
 class AuthService {
   private static instance: AuthService;
   private token: string | null = null;
   private user: User | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // Initialize mock data when service is created
+    this.initializeMockData();
+  }
+
+  private async initializeMockData() {
+    try {
+      const existingUsers = await this.getMockUsers();
+      if (existingUsers.length === 0) {
+        // If no users exist, add the test user
+        await this.saveMockUsers([DEFAULT_TEST_USER]);
+      }
+    } catch (error) {
+      console.error('Failed to initialize mock data:', error);
+    }
+  }
 
   static getInstance(): AuthService {
     if (!AuthService.instance) {
@@ -22,8 +46,13 @@ class AuthService {
   }
 
   private async getMockUsers(): Promise<User[]> {
-    const usersJson = await AsyncStorage.getItem(MOCK_USERS_KEY);
-    return usersJson ? JSON.parse(usersJson) : [];
+    try {
+      const usersJson = await AsyncStorage.getItem(MOCK_USERS_KEY);
+      return usersJson ? JSON.parse(usersJson) : [];
+    } catch (error) {
+      console.error('Error reading mock users:', error);
+      return [];
+    }
   }
 
   private async saveMockUsers(users: User[]): Promise<void> {
@@ -34,13 +63,37 @@ class AuthService {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
   }
 
+  async resetAuthData(): Promise<void> {
+    try {
+      // Clear all auth-related data
+      await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, USER_KEY, MOCK_USERS_KEY]);
+      this.token = null;
+      this.user = null;
+      
+      // Reinitialize with default test user
+      await this.initializeMockData();
+    } catch (error) {
+      console.error('Failed to reset auth data:', error);
+      throw new Error('Failed to reset auth data. Please try again.');
+    }
+  }
+
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const users = await this.getMockUsers();
+      
+      if (users.length === 0) {
+        throw new Error('No accounts found. Please create an account first.');
+      }
+
       const user = users.find(u => u.email === credentials.email);
 
-      if (!user || user.password !== credentials.password) {
-        throw new Error('Invalid credentials');
+      if (!user) {
+        throw new Error('No account found with this email address.');
+      }
+
+      if (user.password !== credentials.password) {
+        throw new Error('Incorrect password. Please try again.');
       }
 
       const token = this.generateToken();
@@ -49,6 +102,10 @@ class AuthService {
 
       return { user, token };
     } catch (error) {
+      // Rethrow specific errors
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error('Login failed. Please try again.');
     }
   }

@@ -33,6 +33,7 @@ export interface WasteLog {
   date: string;
   type: WasteType;
   frequency: number; // Number of droppings/urinations in this log
+  frequencyType: 'per_hour' | 'per_day'; // Type of frequency measurement
   location: string;
   notes?: string;
   // Poop specific
@@ -220,102 +221,47 @@ export interface BondingSession {
 }
 
 export type RootStackParamList = {
-  // Auth Screens
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
-
-  // Main App Screens
-  Welcome: undefined;
   Home: undefined;
+  Settings: undefined;
+  // Auth screens
+  Welcome: undefined;
   PetList: undefined;
-  PetDetails: { petId: string };
-  AddPet: undefined;
-  EditPet: { petId: string };
-  Checklist: { petId: string | undefined };
-  GuineaGram: { refresh?: number };
-  NewsOfTheWheek: undefined;
-  CreateForumPost: undefined;
-  BondingTracker: {
-    petId?: string;
-  };
-  CareGuide: undefined;
-  CareGuideSection: {
-    title: string;
-    content: {
-      title: string;
-      text: string[];
-      tips?: string[];
-      warnings?: string[];
-      images?: string[];
-    }[];
-  };
-  SafeFoods: undefined;
-  NewOwnerChecklist: undefined;
-  SymptomChecker: undefined;
-  Profile: {
+  Profile: { 
     pet: GuineaPig;
-    mode?: 'view' | 'edit';
     onSave?: () => void;
-    onDelete?: (id: string) => void;
+    onDelete?: () => void;
   };
-  AddEditPet: {
+  AddEditPet: { 
     mode?: 'add' | 'edit';
     pet?: GuineaPig;
     onComplete?: () => void;
   };
-  BreedSelection: {
-    petId: string;
-    currentBreed?: string;
-    onSelectBreed: (breed: string) => void;
-    allowCustomBreeds?: boolean;
-  };
-  // Health & Care Screens
-  CareSchedule: {
-    pet: GuineaPig;
-  };
-  DietManager: {
-    pet: GuineaPig;
-  };
-  MedicalRecords: {
-    pet: GuineaPig;
-  };
-  WeightTracker: {
-    pet: GuineaPig;
-  };
-  MoodTracker: {
-    pet: GuineaPig;
-  };
-  FeedingSchedule: {
-    pet: GuineaPig;
-  };
-  CareReminders: {
-    pet: GuineaPig;
-  };
-  PostDetail: {
-    post: GuineaGramPost;
-    onLike?: (postId: string) => void;
-  };
+  BreedSelection: { onSelect: (breed: string) => void };
+  Checklist: { petId?: string };
+  GuineaGram: { refresh?: number };
+  CareGuide: undefined;
+  CareGuideSection: { sectionId: string };
+  SafeFoods: undefined;
+  NewOwnerChecklist: undefined;
+  MedicalRecords: { petId: string };
+  WeightTracker: { petId: string };
+  MoodTracker: { petId: string };
+  CareSchedule: { petId: string };
+  DietManager: { petId: string };
   Achievements: undefined;
-  ForumPost: {
-    post: ForumPost;
-    onLike?: (postId: string) => void;
-  };
-  BondingTimer: {
-    pets: string[];
-  };
+  BondingTracker: { petId?: string };
+  BondingTimer: { sessionId?: string; pets?: string[] };
   BondingGuide: undefined;
-  WasteLog: {
-    petId: string;
-  };
-  AddWasteLog: {
-    petId: string;
-    onSave?: () => void;
-  };
-  FamilyTree: {
+  SymptomChecker: undefined;
+  FamilyTree: { 
     pet: GuineaPig;
     onUpdate?: () => void;
   };
+  WasteLog: { petId: string };
+  AddWasteLog: { petId: string; onSave: () => void };
 };
 
 export type ScreenProps<T extends keyof RootStackParamList> = {

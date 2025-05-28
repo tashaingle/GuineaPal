@@ -51,7 +51,7 @@ const DEFAULT_FEEDING_SCHEDULE: FeedingSchedule = {
 const DietManagerScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'DietManager'>>();
   const navigation = useNavigation<NavigationProp>();
-  const { pet } = route.params;
+  const { petId } = route.params;
 
   const [preferences, setPreferences] = useState<DietPreferences>(DEFAULT_DIET_PREFERENCES);
   const [schedule, setSchedule] = useState<FeedingSchedule>(DEFAULT_FEEDING_SCHEDULE);
@@ -67,8 +67,8 @@ const DietManagerScreen = () => {
     try {
       setIsLoading(true);
       const [savedPreferences, savedSchedule] = await Promise.all([
-        loadDietPreferences(pet.id),
-        loadFeedingSchedule(pet.id)
+        loadDietPreferences(petId),
+        loadFeedingSchedule(petId)
       ]);
       
       if (savedPreferences) {
@@ -87,8 +87,8 @@ const DietManagerScreen = () => {
   const handleSave = async () => {
     try {
       await Promise.all([
-        saveDietPreferences(pet.id, preferences),
-        saveFeedingSchedule(pet.id, schedule)
+        saveDietPreferences(petId, preferences),
+        saveFeedingSchedule(petId, schedule)
       ]);
       Alert.alert('Success', 'Diet preferences and schedule updated successfully');
     } catch (error) {
@@ -97,15 +97,40 @@ const DietManagerScreen = () => {
     }
   };
 
-  const addItem = (list: string[], setList: (items: string[]) => void) => {
+  const addItem = async (list: string[], setList: (items: string[]) => void) => {
     if (!newItem.trim()) return;
-    setList([...list, newItem.trim()]);
+    
+    const updatedList = [...list, newItem.trim()];
+    setList(updatedList);
     setNewItem('');
     setEditingSection(null);
+    
+    // Wait for state update before saving
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await saveDietPreferences(petId, {
+      ...preferences,
+      favoriteVegetables: list === preferences.favoriteVegetables ? updatedList : preferences.favoriteVegetables,
+      favoriteFruits: list === preferences.favoriteFruits ? updatedList : preferences.favoriteFruits,
+      allergies: list === preferences.allergies ? updatedList : preferences.allergies,
+      restrictions: preferences.restrictions,
+      hayPreference: preferences.hayPreference
+    });
   };
 
-  const removeItem = (list: string[], setList: (items: string[]) => void, index: number) => {
-    setList(list.filter((_, i) => i !== index));
+  const removeItem = async (list: string[], setList: (items: string[]) => void, index: number) => {
+    const updatedList = list.filter((_, i) => i !== index);
+    setList(updatedList);
+    
+    // Wait for state update before saving
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await saveDietPreferences(petId, {
+      ...preferences,
+      favoriteVegetables: list === preferences.favoriteVegetables ? updatedList : preferences.favoriteVegetables,
+      favoriteFruits: list === preferences.favoriteFruits ? updatedList : preferences.favoriteFruits,
+      allergies: list === preferences.allergies ? updatedList : preferences.allergies,
+      restrictions: preferences.restrictions,
+      hayPreference: preferences.hayPreference
+    });
   };
 
   const renderList = (
@@ -156,6 +181,12 @@ const DietManagerScreen = () => {
     >
       <FlatList
         style={styles.container}
+        ListHeaderComponent={
+          <View style={styles.banner}>
+            <Text style={styles.bannerTitle}>Diet Manager</Text>
+            <Text style={styles.bannerSubtitle}>Manage your pet's favorite foods and dietary preferences</Text>
+          </View>
+        }
         data={[
           {
             title: 'Favorite Vegetables',
@@ -223,6 +254,29 @@ const DietManagerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  banner: {
+    backgroundColor: 'white',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  bannerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#5D4037',
+    marginBottom: 4,
+  },
+  bannerSubtitle: {
+    fontSize: 16,
+    color: '#795548',
   },
   section: {
     backgroundColor: 'white',

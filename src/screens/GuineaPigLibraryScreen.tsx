@@ -1,4 +1,3 @@
-import { CARE_GUIDE_CONTENT } from '@/data/careGuideContent';
 import { RootStackParamList } from '@/navigation/types';
 import colors from '@/theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -19,43 +18,43 @@ const sections = [
   {
     title: 'Housing',
     icon: 'home',
-    color: colors.buttons.blue,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Diet & Nutrition',
     icon: 'restaurant',
-    color: colors.buttons.green,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Health & Grooming',
     icon: 'healing',
-    color: colors.buttons.red,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Exercise & Play',
     icon: 'sports',
-    color: colors.buttons.orange,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Behavior',
     icon: 'psychology',
-    color: colors.buttons.purple,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Social Needs',
     icon: 'groups',
-    color: colors.buttons.cyan,
+    color: colors.primary.DEFAULT,
   },
   {
     title: 'Safe Foods Guide',
     icon: 'restaurant-menu',
-    color: colors.buttons.green,
+    color: colors.secondary.DEFAULT,
     isSpecialSection: true,
   },
   {
     title: 'New Owner Checklist',
     icon: 'checklist',
-    color: colors.buttons.blue,
+    color: colors.secondary.DEFAULT,
     isSpecialSection: true,
   },
 ];
@@ -71,37 +70,38 @@ const GuineaPigLibraryScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
     
-    const content = CARE_GUIDE_CONTENT[section.title as keyof typeof CARE_GUIDE_CONTENT];
-    if (content) {
-      navigation.navigate('CareGuideSection', content);
-    }
+    navigation.navigate('CareGuideSection', { sectionId: section.title });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.buttons.purple + '10' }]}>
+      <View style={styles.headerContainer}>
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={colors.buttons.purple} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.primary.DEFAULT} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.buttons.purple }]}>Guinea Pig Care Guide</Text>
+          <Text style={styles.title}>Guinea Pig Care Guide</Text>
         </View>
-        <Text style={[styles.subtitle, { color: colors.buttons.purple + '99' }]}>
+        <Text style={styles.subtitle}>
           Everything you need to know about guinea pig care
         </Text>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView>
         <View style={styles.grid}>
           {sections.map((section) => (
             <TouchableOpacity
               key={section.title}
               style={[
                 styles.sectionButton,
-                { backgroundColor: section.color + '10' }
+                { 
+                  backgroundColor: '#FFFFFF',
+                  borderColor: section.color,
+                  borderWidth: 1,
+                }
               ]}
               onPress={() => handleSectionPress(section)}
             >
@@ -124,12 +124,20 @@ const GuineaPigLibraryScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.background.DEFAULT,
   },
-  header: {
+  headerContainer: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerRow: {
     flexDirection: 'row',
@@ -144,13 +152,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#5D4037',
     flex: 1,
   },
   subtitle: {
     fontSize: 16,
-  },
-  content: {
-    flex: 1,
+    color: '#5D4037' + '99',
   },
   grid: {
     padding: 16,
@@ -164,6 +171,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   iconContainer: {
     width: 48,

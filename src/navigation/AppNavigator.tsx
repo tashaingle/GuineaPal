@@ -11,26 +11,28 @@ import BreedSelectionScreen from '@/screens/BreedSelectionScreen';
 import CareScheduleScreen from '@/screens/care/CareScheduleScreen';
 import CareGuideSectionScreen from '@/screens/CareGuideSection';
 import ChecklistScreen from '@/screens/ChecklistScreen';
-import CreateForumPostScreen from '@/screens/CreateForumPostScreen';
 import DietManagerScreen from '@/screens/diet/DietManagerScreen';
 import FamilyTreeScreen from '@/screens/FamilyTreeScreen';
-import ForumPostScreen from '@/screens/ForumPostScreen';
 import GuineaGramScreen from '@/screens/GuineaGramScreen';
 import CareGuideScreen from '@/screens/GuineaPigLibraryScreen';
+import AddWasteLogScreen from '@/screens/health/AddWasteLogScreen';
 import MedicalRecordsScreen from '@/screens/health/MedicalRecordsScreen';
 import MoodTrackerScreen from '@/screens/health/MoodTrackerScreen';
+import WasteLogScreen from '@/screens/health/WasteLogScreen';
 import WeightTrackerScreen from '@/screens/health/WeightTrackerScreen';
 import NewOwnerChecklistScreen from '@/screens/NewOwnerChecklistScreen';
-import NewsOfTheWheekScreen from '@/screens/NewsOfTheWheekScreen';
 import PetListScreen from '@/screens/PetListScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import SafeFoodsScreen from '@/screens/SafeFoodsScreen';
+import SettingsScreen from '@/screens/SettingsScreen';
 import SymptomCheckerScreen from '@/screens/SymptomCheckerScreen';
 import WelcomeScreen from '@/screens/WelcomeScreen';
+import colors from '@/theme/colors';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, ActivityIndicatorProps, View } from 'react-native';
 import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,7 +42,7 @@ const AuthStack = () => (
     screenOptions={{
       headerShown: false,
       animation: 'slide_from_right',
-      contentStyle: { backgroundColor: '#FFF8E1' },
+      contentStyle: { backgroundColor: colors.background.DEFAULT },
     }}
   >
     <Stack.Screen name="Login" component={LoginScreen} />
@@ -54,7 +56,7 @@ const MainStack = () => (
     screenOptions={{
       headerShown: false,
       animation: 'slide_from_right',
-      contentStyle: { backgroundColor: '#FFF8E1' },
+      contentStyle: { backgroundColor: colors.background.DEFAULT },
     }}
   >
     <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -74,30 +76,36 @@ const MainStack = () => (
     <Stack.Screen name="CareSchedule" component={CareScheduleScreen} />
     <Stack.Screen name="DietManager" component={DietManagerScreen} />
     <Stack.Screen name="Achievements" component={AchievementsScreen} />
-    <Stack.Screen name="NewsOfTheWheek" component={NewsOfTheWheekScreen} />
-    <Stack.Screen name="ForumPost" component={ForumPostScreen} />
-    <Stack.Screen name="CreateForumPost" component={CreateForumPostScreen} />
     <Stack.Screen name="BondingTracker" component={BondingTrackerScreen} />
     <Stack.Screen name="BondingTimer" component={BondingTimerScreen} />
     <Stack.Screen name="BondingGuide" component={BondingGuideScreen} />
     <Stack.Screen name="SymptomChecker" component={SymptomCheckerScreen} />
     <Stack.Screen name="FamilyTree" component={FamilyTreeScreen} />
+    <Stack.Screen name="WasteLog" component={WasteLogScreen} />
+    <Stack.Screen name="AddWasteLog" component={AddWasteLogScreen} />
+    <Stack.Screen name="Settings" component={SettingsScreen} />
   </Stack.Navigator>
 );
 
 const AppNavigator = () => {
-  const { user, isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF8E1' }}>
-        <ActivityIndicator size="large" color="#5D4037" />
+      <View style={{ 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        backgroundColor: colors.background.DEFAULT,
+      }}>
+        <ActivityIndicator size={'large' as ActivityIndicatorProps['size']} color={colors.primary.DEFAULT} />
       </View>
     );
   }
 
   return (
     <NavigationContainer>
+      <StatusBar style="dark" />
       {user ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );

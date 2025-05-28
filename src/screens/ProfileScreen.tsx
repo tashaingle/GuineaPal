@@ -7,6 +7,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+    ActivityIndicator,
+    ActivityIndicatorProps,
     Alert,
     ScrollView,
     StyleSheet,
@@ -20,25 +22,38 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
 const ProfileScreen = React.memo(({ route, navigation }: Props) => {
   const { pet: initialPet } = route.params;
-  const petIdRef = useRef(initialPet.id);
+  const petIdRef = useRef(initialPet?.id);
   const prevPetRef = useRef(initialPet);
   const [pet, setPet] = useState(initialPet);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
 
   // Load fresh pet data when needed
   const refreshPetData = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setError(null);
       const pets = await loadPets();
       const freshPet = pets.find(p => p.id === petIdRef.current);
-      if (freshPet && JSON.stringify(freshPet) !== JSON.stringify(prevPetRef.current)) {
+      if (!freshPet) {
+        setError('Pet not found');
+        Alert.alert('Error', 'Pet not found');
+        navigation.goBack();
+        return;
+      }
+      if (JSON.stringify(freshPet) !== JSON.stringify(prevPetRef.current)) {
         prevPetRef.current = freshPet;
         setPet(freshPet);
       }
     } catch (error) {
       console.error('Failed to refresh pet data:', error);
+      setError('Failed to load pet data');
+      Alert.alert('Error', 'Failed to load pet data');
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [navigation]);
 
   // Refresh pet data when the screen comes into focus
   useEffect(() => {
@@ -79,7 +94,7 @@ const ProfileScreen = React.memo(({ route, navigation }: Props) => {
               const updatedPets = currentPets.filter(p => p.id !== petIdRef.current);
               await savePets(updatedPets);
               if (route.params?.onDelete) {
-                route.params.onDelete(petIdRef.current);
+                route.params.onDelete();
               }
               navigation.goBack();
             } catch (err) {
@@ -92,7 +107,34 @@ const ProfileScreen = React.memo(({ route, navigation }: Props) => {
         }
       ]
     );
-  }, [navigation, pet.name, route.params]);
+  }, [navigation, pet?.name, route.params]);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={'large' as ActivityIndicatorProps['size']} color="#5D4037" />
+        </View>
+      </View>
+    );
+  }
+
+  if (error || !pet) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.errorContainer}>
+          <MaterialIcons name="error-outline" size={48} color="#D32F2F" />
+          <Text style={styles.errorText}>{error || 'Pet not found'}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={refreshPetData}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -207,42 +249,44 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: 8,
-    marginLeft: 8,
+    marginRight: 8,
   },
   deleteButton: {
     padding: 8,
-    marginLeft: 8,
   },
   content: {
     flex: 1,
   },
   profileSection: {
     backgroundColor: '#FFFFFF',
+    margin: 16,
     padding: 16,
-    marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    alignSelf: 'center',
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 12,
     marginBottom: 16,
   },
   infoContainer: {
-    marginTop: 8,
+    gap: 12,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    gap: 8,
   },
   infoText: {
-    marginLeft: 8,
     fontSize: 16,
     color: '#5D4037',
   },
   menuContainer: {
-    backgroundColor: '#FFFFFF',
     padding: 16,
   },
   menuTitle: {
@@ -250,6 +294,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#5D4037',
     marginBottom: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#D32F2F',
+    textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: '#5D4037',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

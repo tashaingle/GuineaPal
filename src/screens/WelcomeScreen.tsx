@@ -25,13 +25,14 @@ const NavigationButton = React.memo(({ title, icon, color, onPress, style }: {
   style?: any;
 }) => (
   <TouchableOpacity
-    style={[styles.navigationButton, { backgroundColor: color + '10' }, style]}
+    style={[styles.navigationButton, { 
+      backgroundColor: colors.background.card,
+      borderColor: color + '25',
+    }, style]}
     onPress={onPress}
   >
     <View style={styles.navigationButtonContent}>
-      <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}>
-        <MaterialIcons name={icon} size={32} color={color} />
-      </View>
+      <MaterialIcons name={icon} size={24} color={color} />
       <Text style={[styles.navigationButtonText, { color }]}>{title}</Text>
     </View>
   </TouchableOpacity>
@@ -41,8 +42,7 @@ NavigationButton.displayName = 'NavigationButton';
 
 const WelcomeScreen = ({ navigation }: Props) => {
   const { logout } = useAuth();
-  const { width } = useWindowDimensions();
-  const buttonSize = width > 500 ? '30%' : '45%';
+  const { width, height } = useWindowDimensions();
 
   const handleLogout = async () => {
     Alert.alert(
@@ -81,69 +81,66 @@ const WelcomeScreen = ({ navigation }: Props) => {
           <Text style={styles.welcomeText}>Welcome to GuineaPal</Text>
         </View>
 
-        {/* Prominent Guinea Pigs Button */}
-        <View style={styles.symptomCheckerContainer}>
-          <NavigationButton
-            title="Guinea Pigs"
-            icon="pets"
-            color="#795548"
-            onPress={() => navigation.navigate('PetList')}
-            style={styles.symptomCheckerButton}
-          />
-          <Text style={styles.symptomCheckerDescription}>
-            Manage and monitor your guinea pig companions
-          </Text>
+        <View style={styles.navigationGrid}>
+          <View style={styles.row}>
+            <NavigationButton
+              title="Guinea Pigs"
+              icon="pets"
+              color={colors.primary.DEFAULT}
+              onPress={() => navigation.navigate('PetList')}
+              style={styles.mainButton}
+            />
+            <NavigationButton
+              title="Symptom Checker"
+              icon="medical-services"
+              color={colors.secondary.DEFAULT}
+              onPress={() => navigation.navigate('SymptomChecker')}
+              style={styles.mainButton}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <NavigationButton
+              title="Care Checklist"
+              icon="list"
+              color={colors.primary.DEFAULT}
+              onPress={() => navigation.navigate('Checklist', { petId: undefined })}
+              style={styles.mainButton}
+            />
+            <NavigationButton
+              title="GuineaGram"
+              icon="photo-library"
+              color={colors.secondary.DEFAULT}
+              onPress={() => navigation.navigate('GuineaGram', { refresh: Date.now() })}
+              style={styles.mainButton}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <NavigationButton
+              title="Bonding Timer"
+              icon="timer"
+              color={colors.primary.DEFAULT}
+              onPress={() => navigation.navigate('BondingTracker')}
+              style={styles.mainButton}
+            />
+            <NavigationButton
+              title="Care Guide"
+              icon="menu-book"
+              color={colors.primary.DEFAULT}
+              onPress={() => navigation.navigate('CareGuide')}
+              style={styles.mainButton}
+            />
+          </View>
         </View>
 
-        <View style={styles.navigationContainer}>
-          <NavigationButton
-            title="Symptom Checker"
-            icon="medical-services"
-            color={colors.buttons.red}
-            onPress={() => navigation.navigate('SymptomChecker')}
-          />
-          <NavigationButton
-            title="Care Checklist"
-            icon="list"
-            color="#4CAF50"
-            onPress={() => navigation.navigate('Checklist', { petId: undefined })}
-          />
-          <NavigationButton
-            title="GuineaGram"
-            icon="photo-library"
-            color="#2196F3"
-            onPress={() => navigation.navigate('GuineaGram', { refresh: Date.now() })}
-          />
-          <NavigationButton
-            title="News of the Wheek"
-            icon="forum"
-            color="#FF9800"
-            onPress={() => navigation.navigate('NewsOfTheWheek')}
-          />
-          <NavigationButton
-            title="Bonding Timer"
-            icon="timer"
-            color="#E91E63"
-            onPress={() => navigation.navigate('BondingTracker')}
-          />
-          <NavigationButton
-            title="Care Guide"
-            icon="menu-book"
-            color="#9C27B0"
-            onPress={() => navigation.navigate('CareGuide')}
-          />
-        </View>
-
-        {/* New bottom logout button */}
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={handleLogout}
-          >
-            <MaterialIcons name="logout" size={24} color="#D32F2F" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <MaterialIcons name="logout" size={20} color={colors.text.secondary} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -152,106 +149,102 @@ const WelcomeScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: colors.background.DEFAULT
   },
   contentContainer: {
     flex: 1,
-    paddingVertical: 16,
+    justifyContent: 'space-between',
+    paddingVertical: 24
   },
   header: {
     alignItems: 'center',
-    paddingBottom: 16,
+    paddingVertical: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.light,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   logo: {
-    width: 110,
-    height: 110,
-    marginBottom: 8,
+    width: 100,
+    height: 100,
+    marginBottom: 12
   },
   welcomeText: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#5D4037',
-    textAlign: 'center',
+    fontWeight: '600',
+    color: colors.text.primary,
+    textAlign: 'center'
   },
-  symptomCheckerContainer: {
+  navigationGrid: {
+    flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 24,
-    alignItems: 'center',
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginBottom: 24,
-    backgroundColor: colors.buttons.red + '05',
+    gap: 24
   },
-  symptomCheckerButton: {
-    width: '100%',
-    aspectRatio: undefined,
-    height: 80,
-    marginBottom: 12,
-  },
-  symptomCheckerDescription: {
-    fontSize: 14,
-    color: colors.buttons.red + '99',
-    textAlign: 'center',
-  },
-  navigationContainer: {
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 12,
+    gap: 16,
+    height: '30%'
+  },
+  mainButton: {
+    flex: 1,
+    height: '100%',
+    borderRadius: 12
   },
   navigationButton: {
-    width: '31%',
-    aspectRatio: 1,
-    borderRadius: 16,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   navigationButtonContent: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
+    padding: 16,
+    gap: 12,
+    height: '100%'
   },
   navigationButtonText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  logoutContainer: {
-    position: 'absolute',
-    bottom: 24,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+    textAlign: 'center'
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    paddingHorizontal: 24,
-    backgroundColor: '#FFE0E0',
-    borderRadius: 24,
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border.light,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
   },
   logoutText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#D32F2F',
-  },
+    fontSize: 14,
+    color: colors.text.secondary,
+    fontWeight: '500'
+  }
 });
 
 export default WelcomeScreen; 

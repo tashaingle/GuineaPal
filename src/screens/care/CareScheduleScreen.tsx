@@ -50,7 +50,7 @@ type EditingSections = {
 const CareScheduleScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CareSchedule'>>();
   const navigation = useNavigation<NavigationProp>();
-  const { pet } = route.params;
+  const { petId } = route.params;
 
   const [schedule, setSchedule] = useState<CareSchedule>(DEFAULT_SCHEDULE);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,12 +69,35 @@ const CareScheduleScreen = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const savedSchedule = await loadCareSchedule(pet.id);
+      const savedSchedule = await loadCareSchedule(petId);
       if (savedSchedule) {
-        setSchedule(savedSchedule);
+        // Ensure all required fields are present, fallback to defaults if not
+        const mergedSchedule: CareSchedule = {
+          cageCleaningDays: savedSchedule.cageCleaningDays ?? DEFAULT_SCHEDULE.cageCleaningDays,
+          nailTrimmingInterval: savedSchedule.nailTrimmingInterval ?? DEFAULT_SCHEDULE.nailTrimmingInterval,
+          lastCageCleaning: savedSchedule.lastCageCleaning,
+          lastNailTrimming: savedSchedule.lastNailTrimming,
+          floorTimeSchedule: {
+            days: savedSchedule.floorTimeSchedule?.days ?? DEFAULT_SCHEDULE.floorTimeSchedule.days,
+            duration: savedSchedule.floorTimeSchedule?.duration ?? DEFAULT_SCHEDULE.floorTimeSchedule.duration
+          },
+          outdoorsTimeSchedule: {
+            days: savedSchedule.outdoorsTimeSchedule?.days ?? DEFAULT_SCHEDULE.outdoorsTimeSchedule.days,
+            duration: savedSchedule.outdoorsTimeSchedule?.duration ?? DEFAULT_SCHEDULE.outdoorsTimeSchedule.duration
+          },
+          vitaminCSchedule: {
+            frequency: savedSchedule.vitaminCSchedule?.frequency ?? DEFAULT_SCHEDULE.vitaminCSchedule.frequency,
+            time: savedSchedule.vitaminCSchedule?.time ?? DEFAULT_SCHEDULE.vitaminCSchedule.time,
+            amount: savedSchedule.vitaminCSchedule?.amount ?? DEFAULT_SCHEDULE.vitaminCSchedule.amount
+          }
+        };
+        setSchedule(mergedSchedule);
       }
+      // If no saved schedule, the default schedule set in useState will be used
     } catch (error) {
       console.error('Failed to load care schedule:', error);
+      Alert.alert('Error', 'Failed to load care schedule. Using default schedule.');
+      // Keep using the default schedule on error
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +105,7 @@ const CareScheduleScreen = () => {
 
   const handleSave = async (section: keyof EditingSections) => {
     try {
-      await updateCareSchedule(pet.id, schedule);
+      await updateCareSchedule(petId, schedule);
       setEditingSections(prev => ({ ...prev, [section]: false }));
       Alert.alert('Success', 'Care schedule updated successfully');
     } catch (error) {
@@ -190,6 +213,11 @@ const CareScheduleScreen = () => {
   return (
     <BaseScreen title="Care Schedule Reminders">
       <ScrollView style={styles.container}>
+        <View style={styles.banner}>
+          <Text style={styles.bannerTitle}>Care Schedule Reminders</Text>
+          <Text style={styles.bannerSubtitle}>Manage your pet's daily and weekly care routines</Text>
+        </View>
+
         {/* Cage Cleaning Schedule */}
         <View style={styles.section}>
           {renderSectionHeader(
@@ -400,6 +428,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF8E1'
+  },
+  banner: {
+    backgroundColor: 'white',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  bannerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#5D4037',
+    marginBottom: 4,
+  },
+  bannerSubtitle: {
+    fontSize: 16,
+    color: '#795548',
   },
   section: {
     backgroundColor: 'white',

@@ -150,18 +150,18 @@ const NewOwnerChecklistScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.buttons.blue + '10' }]}>
+      <View style={styles.headerContainer}>
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={colors.buttons.blue} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.primary.DEFAULT} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.buttons.blue }]}>New Owner Checklist</Text>
+          <Text style={styles.title}>New Owner Checklist</Text>
         </View>
         <View style={styles.progressContainer}>
-          <Text style={[styles.progressText, { color: colors.buttons.blue }]}>
+          <Text style={styles.progressText}>
             Progress: {calculateProgress()}%
           </Text>
           <View style={styles.progressBar}>
@@ -170,7 +170,7 @@ const NewOwnerChecklistScreen: React.FC<Props> = ({ navigation }) => {
                 styles.progressFill, 
                 { 
                   width: `${calculateProgress()}%`,
-                  backgroundColor: colors.buttons.blue 
+                  backgroundColor: colors.primary.DEFAULT 
                 }
               ]} 
             />
@@ -183,7 +183,7 @@ const NewOwnerChecklistScreen: React.FC<Props> = ({ navigation }) => {
           <Card key={category.title} style={styles.card}>
             <Card.Content>
               <View style={styles.categoryHeader}>
-                <MaterialIcons name={category.icon} size={24} color={colors.buttons.blue} />
+                <MaterialIcons name={category.icon} size={24} color={colors.primary.DEFAULT} />
                 <Text style={styles.categoryTitle}>{category.title}</Text>
               </View>
               {category.items.map((item, itemIndex) => (
@@ -194,7 +194,7 @@ const NewOwnerChecklistScreen: React.FC<Props> = ({ navigation }) => {
                   >
                     <Checkbox.Android
                       status={item.isCompleted ? 'checked' : 'unchecked'}
-                      color={colors.buttons.blue}
+                      color={colors.primary.DEFAULT}
                     />
                     <View style={styles.itemTextContainer}>
                       <Text style={styles.itemText}>{item.text}</Text>
@@ -216,12 +216,20 @@ const NewOwnerChecklistScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: colors.background.DEFAULT,
   },
-  header: {
+  headerContainer: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
+    backgroundColor: colors.background.card,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerRow: {
     flexDirection: 'row',
@@ -235,6 +243,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: colors.primary.DEFAULT,
     flex: 1,
   },
   progressContainer: {
@@ -242,11 +251,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 16,
+    color: colors.text.primary,
     marginBottom: 4,
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: colors.background.elevated,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -261,7 +271,12 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 16,
     elevation: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background.card,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   categoryHeader: {
     flexDirection: 'row',
@@ -271,7 +286,7 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#5D4037',
+    color: colors.primary.DEFAULT,
     marginLeft: 8,
   },
   checklistItem: {
@@ -287,11 +302,11 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-    color: '#5D4037',
+    color: colors.text.primary,
   },
   itemInfo: {
     fontSize: 14,
-    color: '#795548',
+    color: colors.text.secondary,
     marginTop: 2,
     fontStyle: 'italic',
   },

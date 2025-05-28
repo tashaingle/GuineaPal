@@ -1,4 +1,4 @@
-import { RootStackParamList, WasteLog, WasteType } from '@/navigation/types';
+import { GuineaPig, PeeColor, PoopColor, PoopConsistency, RootStackParamList, WasteLog } from '@/navigation/types';
 import { loadPets, savePets } from '@/utils/storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -11,118 +11,82 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Button, Chip, SegmentedButtons, TextInput } from 'react-native-paper';
+import { Button, RadioButton, TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddWasteLog'>;
 
-const POOP_CONSISTENCIES = [
-  { label: 'Normal', value: 'normal' },
-  { label: 'Soft', value: 'soft' },
-  { label: 'Wet', value: 'wet' },
-  { label: 'Dry', value: 'dry' },
-  { label: 'Diarrhea', value: 'diarrhea' },
-];
-
-const POOP_COLOURS = [
-  { label: 'Brown', value: 'brown' },
-  { label: 'Dark Brown', value: 'dark_brown' },
-  { label: 'Green', value: 'green' },
-  { label: 'White', value: 'white' },
-  { label: 'Red', value: 'red' },
-  { label: 'Black', value: 'black' },
-];
-
-const PEE_COLOURS = [
-  { label: 'Clear', value: 'clear' },
-  { label: 'Cloudy', value: 'cloudy' },
-  { label: 'Dark Yellow', value: 'dark_yellow' },
-  { label: 'Orange', value: 'orange' },
-  { label: 'Red', value: 'red' },
-  { label: 'Brown', value: 'brown' },
-];
-
-const POOP_FREQUENCY_RANGES = [
-  { label: '0-10', value: '5' },
-  { label: '10-20', value: '15' },
-  { label: '20-30', value: '25' },
-  { label: '30+', value: '35' },
-];
-
-const PEE_VOLUMES = [
-  { label: 'Normal', value: 'normal' },
-  { label: 'Excessive', value: 'excessive' },
-  { label: 'Reduced', value: 'reduced' },
-];
-
-const COMMON_LOCATIONS = [
-  'Cage Corner',
-  'Hay Area',
-  'Hide House',
-  'Floor Time',
-  'Other',
-];
+const POOP_CONSISTENCIES: PoopConsistency[] = ['normal', 'soft', 'wet', 'dry', 'diarrhea'];
+const POOP_COLORS: PoopColor[] = ['brown', 'dark_brown', 'green', 'white', 'red', 'black'];
+const PEE_COLORS: PeeColor[] = ['clear', 'cloudy', 'dark_yellow', 'orange', 'red', 'brown'];
+const PEE_VOLUMES: ('normal' | 'excessive' | 'reduced')[] = ['normal', 'excessive', 'reduced'];
 
 const AddWasteLogScreen = ({ navigation, route }: Props) => {
-  const [type, setType] = useState<WasteType>('poop');
-  const [frequency, setFrequency] = useState('5');
+  const [type, setType] = useState<'poop' | 'pee'>('poop');
+  const [frequency, setFrequency] = useState('1');
+  const [frequencyType, setFrequencyType] = useState<'per_hour' | 'per_day'>('per_day');
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
-  // Poop specific
-  const [poopConsistency, setPoopConsistency] = useState('normal');
-  const [poopColour, setPoopColour] = useState('brown');
-  // Pee specific
-  const [peeColour, setPeeColour] = useState('clear');
-  const [peeVolume, setPeeVolume] = useState('normal');
-  const [customFrequency, setCustomFrequency] = useState('');
+  const [poopConsistency, setPoopConsistency] = useState<PoopConsistency>('normal');
+  const [poopColor, setPoopColor] = useState<PoopColor>('brown');
+  const [peeColor, setPeeColor] = useState<PeeColor>('clear');
+  const [peeVolume, setPeeVolume] = useState<'normal' | 'excessive' | 'reduced'>('normal');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const insets = useSafeAreaInsets();
 
-  const handleSubmit = async () => {
+  const handleSave = async () => {
     try {
-      setIsSubmitting(true);
+      setIsLoading(true);
+
+      const pets = await loadPets();
+      const pet = pets.find(p => p.id === route.params.petId);
+
+      if (!pet) {
+        Alert.alert('Error', 'Pet not found');
+        return;
+      }
 
       const newLog: WasteLog = {
         id: Date.now().toString(),
-        petId: route.params.petId,
+        petId: pet.id,
         date: new Date().toISOString(),
         type,
-        frequency: type === 'poop' ? parseInt(frequency, 10) : parseInt(customFrequency || '1', 10),
+        frequency: parseInt(frequency, 10),
+        frequencyType,
         location,
-        notes: notes.trim() || undefined,
+        notes,
         ...(type === 'poop' ? {
           poopConsistency,
-          poopColor: poopColour,
+          poopColor,
         } : {
-          peeColor: peeColour,
+          peeColor,
           peeVolume,
         }),
       };
 
-      const pets = await loadPets();
-      const petIndex = pets.findIndex(p => p.id === route.params.petId);
-      
-      if (petIndex === -1) {
-        throw new Error('Pet not found');
-      }
-
-      const updatedPet = {
-        ...pets[petIndex],
-        wasteLogs: [newLog, ...(pets[petIndex].wasteLogs || [])],
+      const updatedPet: GuineaPig = {
+        ...pet,
+        wasteLogs: [...(pet.wasteLogs || []), newLog],
       };
 
-      pets[petIndex] = updatedPet;
-      await savePets(pets);
+      const updatedPets = pets.map(p => p.id === pet.id ? updatedPet : p);
+      await savePets(updatedPets);
 
-      route.params.onSave?.();
+      route.params.onSave();
       navigation.goBack();
     } catch (error) {
       console.error('Failed to save waste log:', error);
-      Alert.alert('Error', 'Failed to save the waste log');
+      Alert.alert('Error', 'Failed to save waste log');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
+  };
+
+  const formatLabel = (value: string) => {
+    return value.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   };
 
   return (
@@ -138,114 +102,129 @@ const AddWasteLogScreen = ({ navigation, route }: Props) => {
       </View>
 
       <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>Type</Text>
-        <SegmentedButtons
-          value={type}
-          onValueChange={value => setType(value as WasteType)}
-          buttons={[
-            { value: 'poop', label: 'Poop 💩' },
-            { value: 'pee', label: 'Pee 💧' },
-          ]}
-          style={styles.segmentedButtons}
-        />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Type</Text>
+          <RadioButton.Group onValueChange={value => setType(value as 'poop' | 'pee')} value={type}>
+            <View style={styles.row}>
+              <RadioButton.Item label="Poop" value="poop" />
+              <RadioButton.Item label="Pee" value="pee" />
+            </View>
+          </RadioButton.Group>
+        </View>
 
-        <Text style={styles.sectionTitle}>Frequency</Text>
-        {type === 'poop' ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Frequency</Text>
           <View style={styles.frequencyContainer}>
-            <SegmentedButtons
+            <TextInput
               value={frequency}
-              onValueChange={setFrequency}
-              buttons={POOP_FREQUENCY_RANGES}
-              style={styles.segmentedButtons}
+              onChangeText={setFrequency}
+              keyboardType="numeric"
+              style={[styles.input, styles.frequencyInput]}
+              mode="outlined"
             />
+            <View style={styles.frequencyTypeContainer}>
+              <RadioButton.Group onValueChange={value => setFrequencyType(value as 'per_hour' | 'per_day')} value={frequencyType}>
+                <View style={styles.row}>
+                  <RadioButton.Item label="Per Hour" value="per_hour" />
+                  <RadioButton.Item label="Per Day" value="per_day" />
+                </View>
+              </RadioButton.Group>
+            </View>
           </View>
-        ) : (
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Location</Text>
           <TextInput
-            value={customFrequency}
-            onChangeText={setCustomFrequency}
-            keyboardType="number-pad"
+            value={location}
+            onChangeText={setLocation}
             style={styles.input}
             mode="outlined"
-            placeholder="How many times?"
+            placeholder="e.g., Cage corner, Floor time area"
           />
-        )}
-
-        <Text style={styles.sectionTitle}>Location</Text>
-        <View style={styles.chipsContainer}>
-          {COMMON_LOCATIONS.map(loc => (
-            <Chip
-              key={loc}
-              selected={location === loc}
-              onPress={() => setLocation(loc)}
-              style={styles.chip}
-              selectedColor="#5D4037"
-            >
-              {loc}
-            </Chip>
-          ))}
         </View>
 
         {type === 'poop' ? (
           <>
-            <Text style={styles.sectionTitle}>Consistency</Text>
-            <SegmentedButtons
-              value={poopConsistency}
-              onValueChange={setPoopConsistency}
-              buttons={POOP_CONSISTENCIES}
-              style={styles.segmentedButtons}
-            />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Consistency</Text>
+              <RadioButton.Group onValueChange={value => setPoopConsistency(value as PoopConsistency)} value={poopConsistency}>
+                {POOP_CONSISTENCIES.map(consistency => (
+                  <RadioButton.Item
+                    key={consistency}
+                    label={formatLabel(consistency)}
+                    value={consistency}
+                  />
+                ))}
+              </RadioButton.Group>
+            </View>
 
-            <Text style={styles.sectionTitle}>Colour</Text>
-            <SegmentedButtons
-              value={poopColour}
-              onValueChange={setPoopColour}
-              buttons={POOP_COLOURS}
-              style={styles.segmentedButtons}
-            />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Color</Text>
+              <RadioButton.Group onValueChange={value => setPoopColor(value as PoopColor)} value={poopColor}>
+                {POOP_COLORS.map(color => (
+                  <RadioButton.Item
+                    key={color}
+                    label={formatLabel(color)}
+                    value={color}
+                  />
+                ))}
+              </RadioButton.Group>
+            </View>
           </>
         ) : (
           <>
-            <Text style={styles.sectionTitle}>Colour</Text>
-            <SegmentedButtons
-              value={peeColour}
-              onValueChange={setPeeColour}
-              buttons={PEE_COLOURS}
-              style={styles.segmentedButtons}
-            />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Color</Text>
+              <RadioButton.Group onValueChange={value => setPeeColor(value as PeeColor)} value={peeColor}>
+                {PEE_COLORS.map(color => (
+                  <RadioButton.Item
+                    key={color}
+                    label={formatLabel(color)}
+                    value={color}
+                  />
+                ))}
+              </RadioButton.Group>
+            </View>
 
-            <Text style={styles.sectionTitle}>Volume</Text>
-            <SegmentedButtons
-              value={peeVolume}
-              onValueChange={setPeeVolume}
-              buttons={PEE_VOLUMES}
-              style={styles.segmentedButtons}
-            />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Volume</Text>
+              <RadioButton.Group onValueChange={value => setPeeVolume(value as 'normal' | 'excessive' | 'reduced')} value={peeVolume}>
+                {PEE_VOLUMES.map(volume => (
+                  <RadioButton.Item
+                    key={volume}
+                    label={formatLabel(volume)}
+                    value={volume}
+                  />
+                ))}
+              </RadioButton.Group>
+            </View>
           </>
         )}
 
-        <Text style={styles.sectionTitle}>Notes</Text>
-        <TextInput
-          value={notes}
-          onChangeText={setNotes}
-          style={styles.input}
-          mode="outlined"
-          multiline
-          numberOfLines={4}
-          placeholder="Add any additional observations..."
-        />
-      </ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notes</Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            style={styles.input}
+            mode="outlined"
+            multiline
+            numberOfLines={4}
+            placeholder="Any additional observations..."
+          />
+        </View>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Button
           mode="contained"
-          onPress={handleSubmit}
-          style={styles.button}
-          loading={isSubmitting}
-          disabled={isSubmitting || (type === 'pee' && (!customFrequency || parseInt(customFrequency, 10) < 1))}
+          onPress={handleSave}
+          loading={isLoading}
+          disabled={isLoading}
+          style={styles.saveButton}
         >
           Save Log
         </Button>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -276,40 +255,36 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  section: {
+    marginBottom: 24,
+  },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#5D4037',
     marginBottom: 12,
-    marginTop: 20,
   },
-  segmentedButtons: {
-    marginBottom: 8,
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     backgroundColor: 'white',
-    marginBottom: 8,
+  },
+  saveButton: {
+    marginVertical: 24,
+    backgroundColor: '#5D4037',
   },
   frequencyContainer: {
+    marginBottom: 12,
+  },
+  frequencyInput: {
     marginBottom: 8,
   },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 8,
-  },
-  chip: {
-    marginBottom: 8,
-  },
-  footer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+  frequencyTypeContainer: {
     backgroundColor: 'white',
-  },
-  button: {
-    backgroundColor: '#5D4037',
+    borderRadius: 4,
+    marginTop: 8,
   },
 });
 

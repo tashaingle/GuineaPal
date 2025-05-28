@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Image } from 'expo-image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
     ActivityIndicator,
     ActivityIndicatorProps,
@@ -21,43 +21,28 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const PetListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { pets, setPets, refreshPets } = usePets();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { pets, isLoading, error, refreshPets } = usePets();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (isFocused) {
-      loadPetData();
+      refreshPets();
     }
   }, [isFocused]);
-
-  const loadPetData = async () => {
-    try {
-      setIsLoading(true);
-      await refreshPets();
-      setError(null);
-    } catch (err) {
-      console.error('Failed to load pets:', err);
-      setError('Failed to load pets. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const navigateToProfile = (pet: GuineaPig) => {
     navigation.navigate('Profile', { 
       pet,
-      onSave: loadPetData,
-      onDelete: loadPetData
+      onSave: refreshPets,
+      onDelete: refreshPets
     });
   };
 
   const navigateToAddPet = () => {
     navigation.navigate('AddEditPet', { 
       mode: 'add',
-      onComplete: loadPetData
+      onComplete: refreshPets
     });
   };
 
@@ -79,7 +64,7 @@ const PetListScreen = () => {
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity
             style={styles.retryButton}
-            onPress={loadPetData}
+            onPress={refreshPets}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
@@ -90,7 +75,14 @@ const PetListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.buttons.brown + '10' }]}>
+      <View style={[styles.header, { 
+        backgroundColor: colors.background.card,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -107,7 +99,14 @@ const PetListScreen = () => {
           {pets.map((pet: GuineaPig) => (
             <TouchableOpacity
               key={pet.id}
-              style={[styles.petCard, { backgroundColor: colors.buttons.brown + '10' }]}
+              style={[styles.petCard, { 
+                backgroundColor: colors.background.card,
+                elevation: 2,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+              }]}
               onPress={() => navigateToProfile(pet)}
             >
               <View style={[styles.imageContainer, { backgroundColor: colors.buttons.brown + '20' }]}>
@@ -125,13 +124,20 @@ const PetListScreen = () => {
             </TouchableOpacity>
           ))}
           <TouchableOpacity
-            style={[styles.petCard, { backgroundColor: colors.buttons.green + '10' }]}
+            style={[styles.petCard, { 
+              backgroundColor: colors.background.card,
+              elevation: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+            }]}
             onPress={navigateToAddPet}
           >
-            <View style={[styles.addPetIcon, { backgroundColor: colors.buttons.green + '20' }]}>
-              <MaterialIcons name="add" size={40} color={colors.buttons.green} />
+            <View style={[styles.addPetIcon, { backgroundColor: colors.primary.DEFAULT + '20' }]}>
+              <MaterialIcons name="add" size={40} color={colors.primary.DEFAULT} />
             </View>
-            <Text style={[styles.petCardName, { color: colors.buttons.green }]}>
+            <Text style={[styles.petCardName, { color: colors.primary.DEFAULT }]}>
               Add New Pet
             </Text>
           </TouchableOpacity>
@@ -144,12 +150,15 @@ const PetListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.background.DEFAULT,
   },
   header: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
   },
   headerRow: {
     flexDirection: 'row',

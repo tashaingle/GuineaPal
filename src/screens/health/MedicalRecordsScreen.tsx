@@ -1,5 +1,6 @@
 import BaseScreen from '@/components/BaseScreen';
 import { Medication, RootStackParamList, VetAppointment } from '@/navigation/types';
+import colors from '@/theme/colors';
 import {
     loadMedications,
     loadVetAppointments,
@@ -8,6 +9,7 @@ import {
     updateMedication,
     updateVetAppointment
 } from '@/utils/petStorage';
+import { loadPets } from '@/utils/storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,7 +33,8 @@ type Tab = 'medications' | 'visits';
 const MedicalRecordsScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MedicalRecords'>>();
   const navigation = useNavigation<NavigationProp>();
-  const { pet } = route.params;
+  const { petId } = route.params;
+  const [pet, setPet] = useState<{ id: string; name: string } | null>(null);
 
   const [activeTab, setActiveTab] = useState<Tab>('medications');
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -69,14 +72,31 @@ const MedicalRecordsScreen = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [medsRecords, apptRecords] = await Promise.all([
-        loadMedications(pet.id),
-        loadVetAppointments(pet.id)
+      const [pets, medsRecords, apptRecords] = await Promise.all([
+        loadPets(),
+        loadMedications(petId),
+        loadVetAppointments(petId)
       ]);
+      const currentPet = pets.find(p => p.id === petId);
+      if (!currentPet) {
+        console.warn(`Pet with ID ${petId} not found, retrying...`);
+        // Add a small delay and retry once
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const retryPets = await loadPets();
+        const retryPet = retryPets.find(p => p.id === petId);
+        if (!retryPet) {
+          throw new Error('Pet not found');
+        }
+        setPet(retryPet);
+      } else {
+        setPet(currentPet);
+      }
       setMedications(medsRecords.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()));
       setAppointments(apptRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     } catch (error) {
       console.error('Failed to load medical records:', error);
+      Alert.alert('Error', 'Failed to load medical records. Please try again.');
+      navigation.goBack();
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +132,11 @@ const MedicalRecordsScreen = () => {
       return;
     }
 
+    if (!pet) {
+      Alert.alert('Error', 'Pet information not found');
+      return;
+    }
+
     try {
       const medicationData: Medication = {
         id: editingMedication?.id || Date.now().toString(),
@@ -126,12 +151,12 @@ const MedicalRecordsScreen = () => {
       };
 
       if (editingMedication) {
-        await updateMedication(pet.id, medicationData);
+        await updateMedication(petId, medicationData);
         setMedications(medications.map(med => 
           med.id === medicationData.id ? medicationData : med
         ));
       } else {
-        await saveMedication(pet.id, medicationData);
+        await saveMedication(petId, medicationData);
         setMedications([medicationData, ...medications]);
       }
 
@@ -149,6 +174,11 @@ const MedicalRecordsScreen = () => {
       return;
     }
 
+    if (!pet) {
+      Alert.alert('Error', 'Pet information not found');
+      return;
+    }
+
     try {
       const appointmentData: VetAppointment = {
         id: editingAppointment?.id || Date.now().toString(),
@@ -163,12 +193,12 @@ const MedicalRecordsScreen = () => {
       };
 
       if (editingAppointment) {
-        await updateVetAppointment(pet.id, appointmentData);
+        await updateVetAppointment(petId, appointmentData);
         setAppointments(appointments.map(apt => 
           apt.id === appointmentData.id ? appointmentData : apt
         ));
       } else {
-        await saveVetAppointment(pet.id, appointmentData);
+        await saveVetAppointment(petId, appointmentData);
         setAppointments([appointmentData, ...appointments]);
       }
 
@@ -571,7 +601,7 @@ const MedicalRecordsScreen = () => {
 
   return (
     <BaseScreen
-      title={`${pet.name}'s Medical Records`}
+      title={pet ? `${pet.name}'s Medical Records` : 'Medical Records'}
       rightIcon={activeTab === 'medications' ? 'medical-services' : 'event'}
       onRightPress={() => {
         if (activeTab === 'medications') {
@@ -582,6 +612,11 @@ const MedicalRecordsScreen = () => {
       }}
     >
       <View style={styles.container}>
+        <View style={styles.banner}>
+          <Text style={styles.bannerTitle}>{pet ? `${pet.name}'s Medical Records` : 'Medical Records'}</Text>
+          <Text style={styles.bannerSubtitle}>Track medications and vet visits</Text>
+        </View>
+
         <View style={styles.segmentedContainer}>
           <View style={styles.segmentedButtons}>
             <TouchableOpacity
@@ -669,7 +704,59 @@ const MedicalRecordsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1'
+    backgroundColor: colors.background.DEFAULT
+  },
+  banner: {
+    backgroundColor: 'white',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  bannerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#5D4037',
+    marginBottom: 4,
+  },
+  bannerSubtitle: {
+    fontSize: 16,
+    color: '#795548',
+  },
+  content: {
+    flex: 1,
+    padding: 16
+  },
+  card: {
+    backgroundColor: colors.background.card,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.background.DEFAULT
+  },
+  modalContent: {
+    backgroundColor: colors.background.card,
+    borderRadius: 12,
+    padding: 24,
+    margin: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   segmentedContainer: {
     padding: 16
@@ -821,14 +908,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '90%',
-    overflow: 'hidden'
   },
   modalHeader: {
     flexDirection: 'row',

@@ -92,6 +92,17 @@ export const loadWeightRecords = async (petId: string): Promise<WeightRecord[]> 
   }
 };
 
+export const updateWeightRecord = async (petId: string, updatedRecord: WeightRecord) => {
+  const records = await loadWeightRecords(petId);
+  const updatedRecords = records.map(record => 
+    record.id === updatedRecord.id ? updatedRecord : record
+  );
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.WEIGHT_RECORDS + petId,
+    JSON.stringify(updatedRecords)
+  );
+};
+
 // Update functions
 export const updateHealthRecord = async (petId: string, updatedRecord: HealthRecord) => {
   const records = await loadHealthRecords(petId);

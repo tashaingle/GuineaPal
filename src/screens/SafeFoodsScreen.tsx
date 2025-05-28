@@ -77,34 +77,34 @@ const FOOD_GUIDE = {
 const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.buttons.green + '10' }]}>
+      <View style={styles.headerContainer}>
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={colors.buttons.green} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.primary.DEFAULT} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.buttons.green }]}>Safe & Unsafe Foods</Text>
+          <Text style={styles.title}>Safe & Unsafe Foods</Text>
         </View>
-        <Text style={[styles.subtitle, { color: colors.buttons.green + '99' }]}>
+        <Text style={styles.subtitle}>
           Guide to what your guinea pig can and cannot eat
         </Text>
       </View>
 
       <ScrollView style={styles.content}>
         {/* Safe Foods Section */}
-        <Card style={[styles.card, { backgroundColor: colors.buttons.green + '10' }]}>
+        <Card style={styles.card}>
           <Card.Content>
             <View style={styles.cardHeader}>
-              <MaterialIcons name="check-circle" size={24} color={colors.buttons.green} />
-              <Text style={[styles.cardTitle, { color: colors.buttons.green }]}>Safe Foods</Text>
+              <MaterialIcons name="check-circle" size={24} color={colors.primary.DEFAULT} />
+              <Text style={styles.cardTitle}>Safe Foods</Text>
             </View>
             
             <Text style={styles.categoryTitle}>Vegetables</Text>
             {FOOD_GUIDE.safe.vegetables.map((food, index) => (
               <View key={index} style={styles.foodItem}>
-                <MaterialIcons name="check" size={16} color={colors.buttons.green} />
+                <MaterialIcons name="check" size={16} color={colors.primary.DEFAULT} />
                 <Text style={styles.foodText}>{food}</Text>
               </View>
             ))}
@@ -112,7 +112,7 @@ const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.categoryTitle}>Fruits (as treats)</Text>
             {FOOD_GUIDE.safe.fruits.map((food, index) => (
               <View key={index} style={styles.foodItem}>
-                <MaterialIcons name="check" size={16} color={colors.buttons.green} />
+                <MaterialIcons name="check" size={16} color={colors.primary.DEFAULT} />
                 <Text style={styles.foodText}>{food}</Text>
               </View>
             ))}
@@ -120,7 +120,7 @@ const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.categoryTitle}>Herbs</Text>
             {FOOD_GUIDE.safe.herbs.map((food, index) => (
               <View key={index} style={styles.foodItem}>
-                <MaterialIcons name="check" size={16} color={colors.buttons.green} />
+                <MaterialIcons name="check" size={16} color={colors.primary.DEFAULT} />
                 <Text style={styles.foodText}>{food}</Text>
               </View>
             ))}
@@ -128,7 +128,7 @@ const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
         </Card>
 
         {/* Unsafe Foods Section */}
-        <Card style={[styles.card, { backgroundColor: colors.buttons.red + '10' }]}>
+        <Card style={styles.card}>
           <Card.Content>
             <View style={styles.cardHeader}>
               <MaterialIcons name="warning" size={24} color={colors.buttons.red} />
@@ -162,26 +162,26 @@ const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
         </Card>
 
         {/* Important Notes */}
-        <Card style={[styles.card, { backgroundColor: colors.buttons.orange + '10' }]}>
+        <Card style={styles.card}>
           <Card.Content>
             <View style={styles.cardHeader}>
-              <MaterialIcons name="info" size={24} color={colors.buttons.orange} />
-              <Text style={[styles.cardTitle, { color: colors.buttons.orange }]}>Important Notes</Text>
+              <MaterialIcons name="info" size={24} color={colors.primary.DEFAULT} />
+              <Text style={styles.cardTitle}>Important Notes</Text>
             </View>
             <View style={styles.noteItem}>
-              <MaterialIcons name="info" size={16} color={colors.buttons.orange} />
+              <MaterialIcons name="info" size={16} color={colors.primary.DEFAULT} />
               <Text style={styles.noteText}>Always introduce new foods gradually</Text>
             </View>
             <View style={styles.noteItem}>
-              <MaterialIcons name="info" size={16} color={colors.buttons.orange} />
+              <MaterialIcons name="info" size={16} color={colors.primary.DEFAULT} />
               <Text style={styles.noteText}>Wash all produce thoroughly before feeding</Text>
             </View>
             <View style={styles.noteItem}>
-              <MaterialIcons name="info" size={16} color={colors.buttons.orange} />
+              <MaterialIcons name="info" size={16} color={colors.primary.DEFAULT} />
               <Text style={styles.noteText}>Remove uneaten fresh foods after 4 hours</Text>
             </View>
             <View style={styles.noteItem}>
-              <MaterialIcons name="info" size={16} color={colors.buttons.orange} />
+              <MaterialIcons name="info" size={16} color={colors.primary.DEFAULT} />
               <Text style={styles.noteText}>Hay should make up 80% of their diet</Text>
             </View>
           </Card.Content>
@@ -194,16 +194,25 @@ const SafeFoodsScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: colors.background.DEFAULT,
   },
-  header: {
+  headerContainer: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
+    backgroundColor: colors.background.card,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
   backButton: {
     padding: 8,
@@ -213,11 +222,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: colors.primary.DEFAULT,
     flex: 1,
   },
   subtitle: {
     fontSize: 16,
-    marginTop: 4,
+    color: colors.text.secondary,
   },
   content: {
     flex: 1,
@@ -225,11 +235,13 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
+    backgroundColor: colors.background.card,
+    borderRadius: 12,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -240,11 +252,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 8,
+    color: colors.primary.DEFAULT,
   },
   categoryTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#5D4037',
+    color: colors.primary.DEFAULT,
     marginTop: 12,
     marginBottom: 8,
   },
@@ -256,7 +269,7 @@ const styles = StyleSheet.create({
   },
   foodText: {
     fontSize: 16,
-    color: '#5D4037',
+    color: colors.text.primary,
     marginLeft: 8,
     flex: 1,
   },
@@ -268,7 +281,7 @@ const styles = StyleSheet.create({
   },
   noteText: {
     fontSize: 16,
-    color: '#5D4037',
+    color: colors.text.primary,
     marginLeft: 8,
     flex: 1,
   },

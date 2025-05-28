@@ -1,3 +1,4 @@
+import colors from '@/theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
@@ -33,7 +34,7 @@ const BaseScreen: React.FC<Props> = ({
                         style={styles.backButton}
                         onPress={() => navigation.goBack()}
                     >
-                        <MaterialIcons name="arrow-back" size={24} color="#5D4037" />
+                        <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
                     </TouchableOpacity>
                 )}
                 <Text style={[styles.title, showBack && styles.titleWithBack]}>
@@ -44,7 +45,7 @@ const BaseScreen: React.FC<Props> = ({
                         onPress={onRightPress}
                         style={styles.rightIcon}
                     >
-                        <MaterialIcons name={rightIcon} size={24} color="#5D4037" />
+                        <MaterialIcons name={rightIcon} size={24} color={colors.text.primary} />
                     </TouchableOpacity>
                 )}
             </View>
@@ -58,16 +59,22 @@ const BaseScreen: React.FC<Props> = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFF8E1'
+        backgroundColor: colors.background.DEFAULT
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
-        backgroundColor: '#FFF8E1',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        backgroundColor: 'white',
+        marginHorizontal: 16,
+        marginTop: 16,
+        borderRadius: 8,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         minHeight: 64
     },
     backButton: {
@@ -79,7 +86,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#5D4037',
+        color: colors.text.primary,
         flex: 1,
         textAlign: 'center'
     },

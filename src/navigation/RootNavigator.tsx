@@ -7,9 +7,7 @@ import BondingTrackerScreen from '@/screens/BondingTrackerScreen';
 import BreedSelectionScreen from '@/screens/BreedSelectionScreen';
 import CareScheduleScreen from '@/screens/care/CareScheduleScreen';
 import ChecklistScreen from '@/screens/ChecklistScreen';
-import CreateForumPostScreen from '@/screens/CreateForumPostScreen';
 import DietManagerScreen from '@/screens/diet/DietManagerScreen';
-import ForumPostScreen from '@/screens/ForumPostScreen';
 import GuineaGramScreen from '@/screens/GuineaGramScreen';
 import CareGuideScreen from '@/screens/GuineaPigLibraryScreen';
 import AddWasteLogScreen from '@/screens/health/AddWasteLogScreen';
@@ -17,10 +15,10 @@ import MedicalRecordsScreen from '@/screens/health/MedicalRecordsScreen';
 import MoodTrackerScreen from '@/screens/health/MoodTrackerScreen';
 import WasteLogScreen from '@/screens/health/WasteLogScreen';
 import WeightTrackerScreen from '@/screens/health/WeightTrackerScreen';
-import NewsOfTheWheekScreen from '@/screens/NewsOfTheWheekScreen';
 import PetListScreen from '@/screens/PetListScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import WelcomeScreen from '@/screens/WelcomeScreen';
+import colors from '@/theme/colors';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import * as React from 'react';
@@ -30,7 +28,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 // Define screen options outside of the component to prevent recreation
 const screenOptions: NativeStackNavigationOptions = {
   headerShown: false,
-  contentStyle: { backgroundColor: '#FFF8E1' },
+  contentStyle: { backgroundColor: colors.background.DEFAULT },
   animation: 'none',
   animationTypeForReplace: 'pop',
   gestureEnabled: false,
@@ -101,18 +99,6 @@ const RootStack = () => {
       <Stack.Screen 
         name="Achievements" 
         component={AchievementsScreen}
-      />
-      <Stack.Screen 
-        name="NewsOfTheWheek" 
-        component={NewsOfTheWheekScreen}
-      />
-      <Stack.Screen 
-        name="ForumPost" 
-        component={ForumPostScreen}
-      />
-      <Stack.Screen 
-        name="CreateForumPost" 
-        component={CreateForumPostScreen}
       />
       <Stack.Screen 
         name="BondingTracker" 

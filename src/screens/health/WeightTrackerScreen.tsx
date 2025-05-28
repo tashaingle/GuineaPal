@@ -1,6 +1,8 @@
 import BaseScreen from '@/components/BaseScreen';
 import { RootStackParamList, WeightRecord } from '@/navigation/types';
-import { loadWeightRecords, saveWeightRecord } from '@/utils/petStorage';
+import colors from '@/theme/colors';
+import { deleteWeightRecord, loadWeightRecords, saveWeightRecord, updateWeightRecord } from '@/utils/petStorage';
+import { loadPets } from '@/utils/storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,13 +26,15 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 const WeightTrackerScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'WeightTracker'>>();
   const navigation = useNavigation<NavigationProp>();
-  const { pet } = route.params;
+  const { petId } = route.params;
+  const [pet, setPet] = useState<{ id: string; name: string } | null>(null);
 
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newWeight, setNewWeight] = useState('');
   const [notes, setNotes] = useState('');
+  const [editingRecord, setEditingRecord] = useState<WeightRecord | null>(null);
 
   useEffect(() => {
     loadData();
@@ -39,10 +43,29 @@ const WeightTrackerScreen = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const records = await loadWeightRecords(pet.id);
+      const [pets, records] = await Promise.all([
+        loadPets(),
+        loadWeightRecords(petId)
+      ]);
+      const currentPet = pets.find(p => p.id === petId);
+      if (!currentPet) {
+        console.warn(`Pet with ID ${petId} not found, retrying...`);
+        // Add a small delay and retry once
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const retryPets = await loadPets();
+        const retryPet = retryPets.find(p => p.id === petId);
+        if (!retryPet) {
+          throw new Error('Pet not found');
+        }
+        setPet(retryPet);
+      } else {
+        setPet(currentPet);
+      }
       setWeightRecords(records.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
     } catch (error) {
       console.error('Failed to load weight records:', error);
+      Alert.alert('Error', 'Failed to load weight records. Please try again.');
+      navigation.goBack();
     } finally {
       setIsLoading(false);
     }
@@ -55,26 +78,72 @@ const WeightTrackerScreen = () => {
     }
 
     try {
-      const weightRecord: WeightRecord = {
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-        weight: Number(newWeight),
-        notes: notes.trim()
-      };
-
-      await saveWeightRecord(pet.id, weightRecord);
-      setWeightRecords([...weightRecords, weightRecord].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      if (editingRecord) {
+        const updatedRecord: WeightRecord = {
+          ...editingRecord,
+          weight: Number(newWeight),
+          notes: notes.trim()
+        };
+        await updateWeightRecord(petId, updatedRecord);
+        setWeightRecords(weightRecords.map(record => 
+          record.id === updatedRecord.id ? updatedRecord : record
+        ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      } else {
+        const weightRecord: WeightRecord = {
+          id: Date.now().toString(),
+          date: new Date().toISOString(),
+          weight: Number(newWeight),
+          notes: notes.trim()
+        };
+        await saveWeightRecord(petId, weightRecord);
+        setWeightRecords([...weightRecords, weightRecord].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      }
       setShowAddModal(false);
       setNewWeight('');
       setNotes('');
+      setEditingRecord(null);
     } catch (error) {
       console.error('Failed to save weight record:', error);
       Alert.alert('Error', 'Failed to save weight record');
     }
   };
 
+  const handleEditRecord = (record: WeightRecord) => {
+    setEditingRecord(record);
+    setNewWeight(record.weight.toString());
+    setNotes(record.notes || '');
+    setShowAddModal(true);
+  };
+
+  const handleDeleteRecord = async (record: WeightRecord) => {
+    Alert.alert(
+      'Delete Record',
+      'Are you sure you want to delete this weight record?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteWeightRecord(petId, record.id);
+              setWeightRecords(weightRecords.filter(r => r.id !== record.id));
+            } catch (error) {
+              console.error('Failed to delete weight record:', error);
+              Alert.alert('Error', 'Failed to delete weight record');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const renderWeightRecord = ({ item }: { item: WeightRecord }) => (
-    <View style={styles.recordItem}>
+    <TouchableOpacity 
+      style={styles.recordItem}
+      onPress={() => handleEditRecord(item)}
+      onLongPress={() => handleDeleteRecord(item)}
+    >
       <View style={styles.recordHeader}>
         <Text style={styles.recordDate}>
           {new Date(item.date).toLocaleDateString()}
@@ -84,7 +153,8 @@ const WeightTrackerScreen = () => {
       {item.notes && (
         <Text style={styles.recordNotes}>{item.notes}</Text>
       )}
-    </View>
+      <Text style={styles.editHint}>Tap to edit • Long press to delete</Text>
+    </TouchableOpacity>
   );
 
   const renderChart = () => {
@@ -133,11 +203,21 @@ const WeightTrackerScreen = () => {
 
   return (
     <BaseScreen
-      title={`${pet.name}'s Weight History`}
+      title="Weight Tracker"
       rightIcon="add"
-      onRightPress={() => setShowAddModal(true)}
+      onRightPress={() => {
+        setEditingRecord(null);
+        setNewWeight('');
+        setNotes('');
+        setShowAddModal(true);
+      }}
     >
       <View style={styles.container}>
+        <View style={styles.banner}>
+          <Text style={styles.bannerTitle}>{pet ? `${pet.name}'s Weight History` : 'Weight History'}</Text>
+          <Text style={styles.bannerSubtitle}>Track and monitor your pet's weight over time</Text>
+        </View>
+
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <MaterialIcons name="hourglass-empty" size={48} color="#5D4037" />
@@ -167,11 +247,18 @@ const WeightTrackerScreen = () => {
           visible={showAddModal}
           transparent
           animationType="slide"
-          onRequestClose={() => setShowAddModal(false)}
+          onRequestClose={() => {
+            setShowAddModal(false);
+            setEditingRecord(null);
+            setNewWeight('');
+            setNotes('');
+          }}
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Add Weight Record</Text>
+              <Text style={styles.modalTitle}>
+                {editingRecord ? 'Edit Weight Record' : 'Add Weight Record'}
+              </Text>
               
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Weight (in grams)</Text>
@@ -198,7 +285,12 @@ const WeightTrackerScreen = () => {
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setShowAddModal(false)}
+                  onPress={() => {
+                    setShowAddModal(false);
+                    setEditingRecord(null);
+                    setNewWeight('');
+                    setNotes('');
+                  }}
                 >
                   <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
@@ -206,7 +298,9 @@ const WeightTrackerScreen = () => {
                   style={[styles.modalButton, styles.saveButton]}
                   onPress={handleAddWeight}
                 >
-                  <Text style={[styles.buttonText, styles.saveButtonText]}>Save</Text>
+                  <Text style={[styles.buttonText, styles.saveButtonText]}>
+                    {editingRecord ? 'Update' : 'Save'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -220,11 +314,34 @@ const WeightTrackerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1'
+    backgroundColor: colors.background.DEFAULT
+  },
+  banner: {
+    backgroundColor: 'white',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  bannerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#5D4037',
+    marginBottom: 4,
+  },
+  bannerSubtitle: {
+    fontSize: 16,
+    color: '#795548',
   },
   chartContainer: {
     padding: 16,
-    backgroundColor: 'white',
+    backgroundColor: colors.background.card,
     marginBottom: 8,
     borderRadius: 8,
     elevation: 2,
@@ -274,7 +391,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   recordItem: {
-    backgroundColor: 'white',
+    backgroundColor: colors.background.card,
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
@@ -302,7 +419,14 @@ const styles = StyleSheet.create({
   recordNotes: {
     fontSize: 14,
     color: '#795548',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    marginBottom: 8
+  },
+  editHint: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    textAlign: 'center',
+    marginTop: 8
   },
   modalOverlay: {
     flex: 1,

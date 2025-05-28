@@ -1,4 +1,5 @@
 import { GuineaPig, RootStackParamList } from '@/navigation/types';
+import colors from '@/theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,7 +13,15 @@ import {
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-type ScreenName = 'WeightTracker' | 'MedicalRecords' | 'CareSchedule' | 'DietManager' | 'MoodTracker' | 'WasteLog' | 'FamilyTree';
+type ScreenName = keyof Pick<RootStackParamList, 
+  'WeightTracker' | 
+  'MedicalRecords' | 
+  'CareSchedule' | 
+  'DietManager' | 
+  'MoodTracker' | 
+  'WasteLog' | 
+  'FamilyTree'
+>;
 
 type FeatureMenuItem = {
   title: string;
@@ -28,49 +37,49 @@ const MENU_ITEMS: FeatureMenuItem[] = [
     title: 'Family Tree',
     icon: 'family-restroom',
     screen: 'FamilyTree',
-    color: '#3F51B5',
+    color: colors.primary.DEFAULT,
     description: 'Track family relationships'
   },
   {
     title: 'Mood Tracker',
     icon: 'mood',
     screen: 'MoodTracker',
-    color: '#E91E63',
+    color: colors.secondary.DEFAULT,
     description: 'Monitor mood and behavior'
   },
   {
     title: 'Weight History',
     icon: 'line-weight',
     screen: 'WeightTracker',
-    color: '#9C27B0',
+    color: colors.primary.DEFAULT,
     description: 'Monitor weight changes'
   },
   {
     title: 'Medical Records',
     icon: 'medical-services',
     screen: 'MedicalRecords',
-    color: '#2196F3',
+    color: colors.secondary.DEFAULT,
     description: 'Manage medications and vet visits'
   },
   {
     title: 'Care Schedule Reminders',
     icon: 'event',
     screen: 'CareSchedule',
-    color: '#FF9800',
+    color: colors.primary.DEFAULT,
     description: 'Manage care routines and reminders'
   },
   {
     title: 'Diet Manager',
     icon: 'restaurant',
     screen: 'DietManager',
-    color: '#795548',
+    color: colors.secondary.DEFAULT,
     description: 'Track diet and feeding schedule'
   },
   {
     title: 'Waste Log',
     icon: 'pets',
     screen: 'WasteLog',
-    color: '#795548',
+    color: colors.primary.DEFAULT,
     description: 'Track waste patterns and health'
   }
 ];
@@ -84,13 +93,19 @@ const PetFeatureMenu = React.memo(({ pet }: Props) => {
   const route = useRoute();
 
   const handleNavigation = (screen: ScreenName) => {
-    switch (screen) {
-      case 'WasteLog':
-        navigation.navigate('WasteLog', { petId: pet.id });
-        break;
-      default:
-        navigation.navigate(screen, { pet });
+    console.log('Navigating to:', screen, 'with petId:', pet.id);
+    
+    // Special handling for FamilyTree screen which needs the full pet object
+    if (screen === 'FamilyTree') {
+      navigation.navigate('FamilyTree', { 
+        pet,
+        onUpdate: () => {} // Add an empty callback since it's optional
+      });
+      return;
     }
+
+    // For other screens that need petId
+    navigation.navigate(screen, { petId: pet.id });
   };
 
   return (
