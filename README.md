@@ -43,8 +43,8 @@ Stay motivated with achievements for:
 
 1. Clone the repository:
    ```bash
-   git clone [repository-url]
-   cd GuineaPal-Fresh
+   git clone https://github.com/tashaingle/GuineaPal.git
+   cd GuineaPal
    ```
 
 2. Install dependencies:

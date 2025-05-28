@@ -41,16 +41,7 @@ module.exports = function(api) {
       }]
     ],
     env: {
-      development: {
-        compact: false,
-        plugins: [
-          ['transform-inline-environment-variables', {
-            include: ['EXPO_OS', 'NODE_ENV', 'EXPO_PLATFORM']
-          }]
-        ]
-      },
       production: {
-        compact: true,
         plugins: [
           ['transform-inline-environment-variables', {
             include: ['EXPO_OS', 'NODE_ENV', 'EXPO_PLATFORM']
