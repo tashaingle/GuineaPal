@@ -1,4 +1,6 @@
-theme: jekyll-theme-minimal
+theme: jekyll-theme-cayman
 title: GuineaPal Documentation
 description: Documentation, Privacy Policy, and Support for GuineaPal - Your Guinea Pig Care Companion
-show_downloads: false 
+show_downloads: false
+markdown: kramdown
+include: ["*.html"] 
